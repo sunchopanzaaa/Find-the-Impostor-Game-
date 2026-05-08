@@ -1,0 +1,1358 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Find the Impostor</title>
+  <style>
+    :root {
+      --bg: #17212b;
+      --surface: #242f3d;
+      --surface-2: #1f2a36;
+      --surface-3: #2b3948;
+      --bubble: #2b5278;
+      --bubble-soft: #263f58;
+      --text: #ffffff;
+      --muted: #a8b5c3;
+      --muted-2: #7f91a4;
+      --border: rgba(255,255,255,.08);
+      --accent: #2aabee;
+      --accent-hover: #229ed9;
+      --green: #32b768;
+      --red: #e85d75;
+      --shadow: 0 14px 32px rgba(0,0,0,.22);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top left, rgba(42,171,238,.18), transparent 28%),
+        linear-gradient(135deg, #17212b 0%, #0e1621 100%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 18px;
+      overflow-x: hidden;
+    }
+
+    .app {
+      width: min(760px, 100%);
+      margin: 0 auto;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 72px 1fr;
+      gap: 14px;
+      align-items: start;
+      margin-bottom: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    .avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #2aabee, #1d6f9f);
+      display: grid;
+      place-items: center;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 8px 18px rgba(0,0,0,.24);
+    }
+
+    .avatar-icon {
+      font-size: 36px;
+      line-height: 1;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,.35));
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(26px, 5vw, 40px);
+      line-height: 1;
+      letter-spacing: -0.045em;
+      font-weight: 800;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin: 8px 0 0;
+      line-height: 1.45;
+      font-size: 14px;
+      max-width: 680px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    label {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 7px;
+    }
+
+    input, textarea {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,.06);
+      background: #17212b;
+      color: var(--text);
+      border-radius: 14px;
+      padding: 13px 14px;
+      font: inherit;
+      outline: none;
+      transition: .16s ease;
+    }
+
+    textarea {
+      min-height: 96px;
+      resize: vertical;
+    }
+
+    input:focus, textarea:focus {
+      border-color: rgba(42,171,238,.75);
+      box-shadow: 0 0 0 3px rgba(42,171,238,.16);
+    }
+
+    .btn-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    button {
+      border: 0;
+      border-radius: 999px;
+      padding: 11px 16px;
+      font: inherit;
+      font-weight: 700;
+      color: var(--text);
+      cursor: pointer;
+      transition: transform .14s ease, background .14s ease, opacity .14s ease;
+      background: var(--surface-3);
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      background: #34465a;
+    }
+
+    button:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .primary { background: var(--accent); color: #fff; }
+    .primary:hover { background: var(--accent-hover); }
+    .success { background: var(--green); color: #fff; }
+    .success:hover { background: #2ea65f; }
+    .danger { background: rgba(232,93,117,.18); color: #ffc9d2; }
+    .danger:hover { background: rgba(232,93,117,.28); }
+    .ghost { background: rgba(255,255,255,.08); color: var(--text); }
+
+    .language-toggle {
+      display: flex;
+      gap: 6px;
+      background: var(--surface);
+      padding: 6px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      margin-bottom: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .lang-btn {
+      flex: 1;
+      padding: 9px 12px;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 999px;
+    }
+
+    .lang-btn.active {
+      background: var(--accent);
+      color: #fff;
+    }
+
+    .hidden { display: none !important; }
+
+    .screen-title {
+      margin: 0 0 10px;
+      font-size: 22px;
+      letter-spacing: -0.03em;
+      font-weight: 750;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .screen-title::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 0 4px rgba(42,171,238,.12);
+      flex: 0 0 auto;
+    }
+
+    .big-question {
+      font-size: clamp(23px, 4vw, 36px);
+      line-height: 1.15;
+      margin: 16px 0;
+      letter-spacing: -0.04em;
+      font-weight: 800;
+      background: var(--bubble);
+      border-radius: 20px 20px 20px 6px;
+      padding: 18px;
+      box-shadow: 0 10px 24px rgba(0,0,0,.18);
+    }
+
+    .player-name {
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .notice {
+      color: #ffe6a3;
+      background: rgba(255,200,87,.1);
+      border: 1px solid rgba(255,200,87,.2);
+      padding: 13px 14px;
+      border-radius: 16px;
+      margin: 12px 0;
+      line-height: 1.45;
+      font-size: 14px;
+    }
+
+    .answers, .history-list, .players-list {
+      display: grid;
+      gap: 9px;
+      margin-top: 14px;
+    }
+
+    .answer-card, .history-card, .topic-preview {
+      padding: 13px 14px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 17px;
+    }
+
+    .answer-card:nth-child(odd) {
+      background: var(--bubble-soft);
+      border-bottom-left-radius: 6px;
+    }
+
+    .answer-card:nth-child(even) { border-bottom-right-radius: 6px; }
+
+    .answer-card strong, .history-card strong, .topic-preview strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .answer-card p, .history-card p, .topic-preview p {
+      margin: 0;
+      color: var(--muted);
+      line-height: 1.42;
+      font-size: 14px;
+    }
+
+    .history-card {
+      display: grid;
+      gap: 8px;
+      background: #1d2936;
+    }
+
+    .meta { font-size: 12px; color: var(--muted-2); }
+
+    .vote-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 9px;
+      margin-top: 14px;
+    }
+
+    .vote-btn {
+      border-radius: 16px;
+      background: var(--surface-2);
+      min-height: 58px;
+    }
+
+    .vote-btn:hover { background: var(--bubble); }
+
+    .result { text-align: center; padding: 28px 18px; }
+    .result-emoji { font-size: 58px; margin-bottom: 8px; }
+    .small { font-size: 13px; color: var(--muted); line-height: 1.45; }
+
+    .topic-preview {
+      background:
+        linear-gradient(135deg, rgba(42,171,238,.18), rgba(42,171,238,.06)),
+        var(--surface-2);
+    }
+
+    .rules-accordion {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      overflow: hidden;
+      margin: 8px 0;
+    }
+
+    .rules-accordion summary {
+      cursor: pointer;
+      padding: 12px 14px;
+      font-weight: 700;
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .rules-content {
+      padding: 0 14px 14px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+    }
+
+    .rules-content p {
+      margin: 10px 0 0;
+    }
+
+    .modal {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+      background: rgba(0,0,0,.55);
+    }
+
+    .modal-card {
+      width: min(420px, 100%);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+    }
+
+    @media (max-width: 720px) {
+      body { padding: 10px; }
+      .app { width: 100%; }
+      .hero { grid-template-columns: 60px 1fr; border-radius: 18px; }
+      .avatar { width: 60px; height: 60px; }
+      .avatar-icon { font-size: 32px; }
+      .grid { grid-template-columns: 1fr; }
+      .card { padding: 14px; border-radius: 18px; }
+      button { width: 100%; }
+      .language-toggle button { width: auto; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <div class="avatar" aria-label="Impostor avatar">
+        <div class="avatar-icon">👺</div>
+      </div>
+      <div>
+        <h1 data-i18n="appTitle">Find the Impostor</h1>
+        <details class="rules-accordion">
+          <summary data-i18n="rulesSummary">How to play</summary>
+          <div class="rules-content">
+            <p data-i18n="rulesText1">At the beginning of each round, every player receives a question. One player's question will be different from the group — he is the impostor.</p>
+            <p data-i18n="rulesText2">Your objective as a player is to deduce the impostor and convince other players to vote him out.</p>
+            <p data-i18n="rulesText3">Impostor's objective is to convince the rest of the party that he got the same question as everyone else and persuade them to vote for another player. If the impostor is still in the game after voting, he wins.</p>
+          </div>
+        </details>
+        <p class="subtitle" data-i18n="appSubtitle">Локальна HTML5-гра: кожен раунд автоматично отримує нову випадкову тему та пару питань. Питання приховані до кінця раунду.</p>
+      </div>
+    </section>
+
+    <section class="language-toggle" aria-label="Language switcher">
+      <button class="lang-btn active" data-lang="uk">Українська</button>
+      <button class="lang-btn" data-lang="en">English</button>
+    </section>
+
+    <section id="setupScreen" class="card">
+      <h2 class="screen-title" data-i18n="setupTitle">1. Налаштування гри</h2>
+      <div class="grid">
+        <div>
+          <label data-i18n="playersLabel">Гравці</label>
+          <div id="playersList" class="players-list"></div>
+          <div class="btn-row">
+            <button class="primary" id="openJoinModalBtn" data-i18n="openJoinModalBtn">Додати гравця</button>
+            <button class="ghost" id="clearPlayersBtn" data-i18n="clearPlayersBtn">Очистити гравців</button>
+          </div>
+        </div>
+        <div>
+          <div class="topic-preview" style="height:100%; display:flex; flex-direction:column; justify-content:center;">
+            <strong data-i18n="randomTopicsTitle">Випадкові секретні теми</strong>
+            <p data-i18n="randomTopicsText">Кожен раунд автоматично отримує нову тему: попкультура, стосунки, money talk, spicy питання, бренди, соцмережі, red flags, lifestyle та інші.</p>
+          </div>
+        </div>
+      </div>
+      <div class="notice">
+        <strong data-i18n="pairAutoTitle">Пара питань буде згенерована автоматично</strong>
+        <p class="small" data-i18n="pairAutoText">До завершення раунду ніхто не бачить, яке питання було звичайним, а яке — для імпостора.</p>
+      </div>
+      <div class="btn-row">
+        <button class="primary" id="createLobbyBtn" data-i18n="createLobbyBtn">Створити лоббі</button>
+      </div>
+
+      <div class="notice" style="margin-top:14px;">
+        <strong data-i18n="joinLobbyTitle">Приєднатися до лоббі</strong>
+        <div class="btn-row">
+          <input id="lobbyCodeInput" autocomplete="off" data-placeholder-key="lobbyCodePlaceholder" placeholder="ABCD" style="max-width:160px; text-transform:uppercase;" />
+          <button class="success" id="joinLobbyBtn" data-i18n="joinLobbyBtn">Приєднатися</button>
+        </div>
+      </div>
+
+      <div id="currentLobbyCard" class="topic-preview hidden" style="margin-top:14px;">
+        <strong data-i18n="currentLobbyLabel">Поточне лоббі</strong>
+        <p><span id="currentLobbyCode">----</span></p>
+      </div>
+
+      <div class="btn-row">
+        <button class="primary hidden" id="startBtn" data-i18n="startBtn">Почати новий раунд</button>
+      </div>
+    </section>
+
+    <section id="passScreen" class="card hidden">
+      <h2 class="screen-title" data-i18n="passTitle">2. Передай телефон</h2>
+      <p class="subtitle"><span data-i18n="passTextBefore">Нехай</span> <span id="currentPlayerName" class="player-name"></span> <span data-i18n="passTextAfter">натисне кнопку і подивиться своє питання так, щоб інші не бачили.</span></p>
+      <div class="notice" data-i18n="privacyNotice">Не показуйте питання іншим. Після відповіді передайте телефон наступному гравцю.</div>
+      <div class="btn-row">
+        <button class="primary" id="showQuestionBtn" data-i18n="showQuestionBtn">Показати моє питання</button>
+      </div>
+    </section>
+
+    <section id="questionScreen" class="card hidden">
+      <h2 class="screen-title"><span data-i18n="questionFor">Питання для</span> <span id="questionPlayerName" class="player-name"></span></h2>
+      <div id="questionText" class="big-question"></div>
+      <label for="answerInput" data-i18n="answerLabel">Твоя відповідь</label>
+      <input id="answerInput" autocomplete="off" data-placeholder-key="answerPlaceholder" placeholder="Введи коротку відповідь" />
+      <div class="btn-row">
+        <button class="ghost" id="rerollQuestionsBtn" data-i18n="rerollQuestionsBtn">Змінити питання</button>
+        <button class="success" id="saveAnswerBtn" data-i18n="saveAnswerBtn">Зберегти відповідь</button>
+      </div>
+    </section>
+
+    <section id="answersScreen" class="card hidden">
+      <h2 class="screen-title" data-i18n="answersTitle">3. Відповіді гравців</h2>
+      <p class="subtitle" data-i18n="answersText">Обговоріть відповіді. Завдання звичайних гравців — знайти імпостора. Завдання імпостора — не видати себе.</p>
+      <div id="answersList" class="answers"></div>
+      <div class="btn-row">
+        <button class="primary" id="goVoteBtn" data-i18n="goVoteBtn">Перейти до голосування</button>
+      </div>
+    </section>
+
+    <section id="voteScreen" class="card hidden">
+      <h2 class="screen-title" data-i18n="voteTitle">4. Хто імпостор?</h2>
+      <p class="subtitle" data-i18n="voteText">Виберіть гравця, який, на вашу думку, отримав інше питання.</p>
+      <div id="voteGrid" class="vote-grid"></div>
+    </section>
+
+    <section id="resultScreen" class="card result hidden">
+      <div id="resultEmoji" class="result-emoji">🕵️</div>
+      <h2 id="resultTitle" class="screen-title"></h2>
+      <p id="resultText" class="subtitle"></p>
+      <div id="revealQuestions" class="answers"></div>
+      <div class="btn-row" style="justify-content:center">
+        <button class="primary" id="playAgainBtn" data-i18n="newRoundBtn">Новий раунд</button>
+        <button class="ghost" id="backSetupBtn" data-i18n="backSetupBtn">До налаштувань</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2 class="screen-title" data-i18n="historyTitle">Історія</h2>
+      <p class="subtitle" data-i18n="historyText">Тут зберігаються завершені ігри: тема, звичайне питання, питання імпостора і хто був імпостором.</p>
+      <div id="historyList" class="history-list"></div>
+      <div class="btn-row">
+        <button class="danger" id="clearHistoryBtn" data-i18n="clearHistoryBtn">Очистити історію</button>
+      </div>
+    </section>
+      <div id="joinModal" class="modal hidden">
+      <div class="modal-card">
+        <h2 class="screen-title" data-i18n="joinTitle">Приєднатися до гри</h2>
+        <p class="subtitle" data-i18n="joinText">Введи імʼя гравця та додай його в лобі.</p>
+        <label for="joinNameInput" data-i18n="joinNameLabel">Імʼя гравця</label>
+        <input id="joinNameInput" autocomplete="off" data-placeholder-key="joinNamePlaceholder" placeholder="Введи імʼя" />
+        <div class="btn-row">
+          <button class="success" id="joinPlayerBtn" data-i18n="joinBtn">Приєднатися</button>
+          <button class="ghost" id="closeJoinModalBtn" data-i18n="cancelBtn">Скасувати</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+    import {
+      getDatabase,
+      ref,
+      set,
+      update,
+      onValue,
+      get,
+      child
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCGi7uskk-xLvAtd2gPFDBN34sOlQL4T68",
+      authDomain: "find-the-impostor-5e50f.firebaseapp.com",
+      databaseURL: "https://find-the-impostor-5e50f-default-rtdb.firebaseio.com",
+      projectId: "find-the-impostor-5e50f",
+      storageBucket: "find-the-impostor-5e50f.firebasestorage.app",
+      messagingSenderId: "1063443796157",
+      appId: "1:1063443796157:web:e8d9fbcc0299fed519e7d4"
+    };
+
+    const firebaseApp = initializeApp(firebaseConfig);
+    const db = getDatabase(firebaseApp);
+
+    function createLobbyCode() {
+      return Math.random().toString(36).substring(2, 6).toUpperCase();
+    }
+
+    const translations = {
+      uk: {
+        appTitle: "Find the Impostor",
+        appSubtitle: "Локальна HTML5-гра: кожен раунд автоматично отримує нову випадкову тему та пару питань. Питання приховані до кінця раунду.",
+        rulesSummary: "Як грати",
+        rulesText1: "На початку кожного раунду кожен гравець отримує питання. Питання одного гравця буде відрізнятися від питання групи — він імпостор.",
+        rulesText2: "Твоя ціль як гравця — визначити імпостора і переконати інших проголосувати проти нього.",
+        rulesText3: "Ціль імпостора — переконати решту компанії, що він отримав таке саме питання, як усі інші, і схилити їх проголосувати проти іншого гравця. Якщо після голосування імпостор залишається в грі, він перемагає.",
+        setupTitle: "1. Налаштування гри",
+        playersLabel: "Гравці",
+        playersPlaceholder: "Саша, Даня, Марк, Аня",
+        openJoinModalBtn: "Додати гравця",
+        clearPlayersBtn: "Очистити гравців",
+        emptyPlayers: "Гравців ще немає. Додай мінімум 3 гравці, щоб почати.",
+        playerNumber: "Гравець",
+        joinTitle: "Приєднатися до гри",
+        joinText: "Введи імʼя гравця та додай його в лобі.",
+        joinNameLabel: "Імʼя гравця",
+        joinNamePlaceholder: "Введи імʼя",
+        joinBtn: "Приєднатися",
+        cancelBtn: "Скасувати",
+        randomTopicsTitle: "Випадкові секретні теми",
+        randomTopicsText: "Кожен раунд автоматично отримує нову тему: попкультура, стосунки, money talk, spicy питання, бренди, соцмережі, red flags, lifestyle та інші.",
+        pairAutoTitle: "Пара питань буде згенерована автоматично",
+        pairAutoText: "До завершення раунду ніхто не бачить, яке питання було звичайним, а яке — для імпостора.",
+        createLobbyBtn: "Створити лоббі",
+        joinLobbyTitle: "Приєднатися до лоббі",
+        lobbyCodePlaceholder: "Код лоббі",
+        joinLobbyBtn: "Приєднатися",
+        currentLobbyLabel: "Поточне лоббі",
+        startBtn: "Почати новий раунд",
+        passTitle: "2. Передай телефон",
+        passTextBefore: "Нехай",
+        passTextAfter: "натисне кнопку і подивиться своє питання так, щоб інші не бачили.",
+        privacyNotice: "Не показуйте питання іншим. Після відповіді передайте телефон наступному гравцю.",
+        showQuestionBtn: "Показати моє питання",
+        questionFor: "Питання для",
+        answerLabel: "Твоя відповідь",
+        answerPlaceholder: "Введи коротку відповідь",
+        saveAnswerBtn: "Зберегти відповідь",
+        rerollQuestionsBtn: "Змінити питання",
+        answersTitle: "3. Відповіді гравців",
+        answersText: "Обговоріть відповіді. Завдання звичайних гравців — знайти імпостора. Завдання імпостора — не видати себе.",
+        goVoteBtn: "Перейти до голосування",
+        voteTitle: "4. Хто імпостор?",
+        voteText: "Виберіть гравця, який, на вашу думку, отримав інше питання.",
+        foundTitle: "Імпостора знайдено!",
+        escapedTitle: "Імпостор переміг!",
+        foundText: (name) => `Ви проголосували за ${name}, і це справді був/була імпостор.`,
+        escapedText: (voted, impostor) => `Ви проголосували за ${voted}, але імпостором був/була ${impostor}.`,
+        topicLabel: "Тема",
+        regularQuestionLabel: "Питання звичайних гравців",
+        impostorQuestionLabel: "Питання імпостора",
+        impostorLabel: "Імпостор",
+        answerWord: "відповідь",
+        newRoundBtn: "Новий раунд",
+        backSetupBtn: "До налаштувань",
+        historyTitle: "Історія",
+        historyText: "Тут зберігаються завершені ігри: тема, звичайне питання, питання імпостора і хто був імпостором.",
+        emptyHistory: "Історія поки порожня. Завершіть перший раунд, і він зʼявиться тут.",
+        gameWord: "Гра",
+        voteWord: "Голосування",
+        correctWord: "правильно",
+        wrongWord: "неправильно",
+        unknownTopic: "Невідома тема",
+        clearHistoryBtn: "Очистити історію",
+        clearHistoryConfirm: "Очистити всю історію ігор?",
+        minPlayersAlert: "Потрібно мінімум 3 гравці.",
+        emptyAnswerAlert: "Введи відповідь перед тим, як продовжити."
+      },
+      en: {
+        appTitle: "Find the Impostor",
+        appSubtitle: "A local HTML5 party game: each round gets a random topic and a hidden pair of questions. The questions stay secret until the end.",
+        rulesSummary: "How to play",
+        rulesText1: "At the beginning of each round, every player receives a question. One player's question will be different from the group — he is the impostor.",
+        rulesText2: "Your objective as a player is to deduce the impostor and convince other players to vote him out.",
+        rulesText3: "Impostor's objective is to convince the rest of the party that he got the same question as everyone else and persuade them to vote for another player. If the impostor is still in the game after voting, he wins.",
+        setupTitle: "1. Game setup",
+        playersLabel: "Players",
+        playersPlaceholder: "Sasha, Daniel, Mark, Anna",
+        openJoinModalBtn: "Add player",
+        clearPlayersBtn: "Clear players",
+        emptyPlayers: "No players yet. Add at least 3 players to start.",
+        playerNumber: "Player",
+        joinTitle: "Join the game",
+        joinText: "Enter a player name and add them to the lobby.",
+        joinNameLabel: "Player name",
+        joinNamePlaceholder: "Enter name",
+        joinBtn: "Join",
+        cancelBtn: "Cancel",
+        randomTopicsTitle: "Random classified topics",
+        randomTopicsText: "Every round automatically gets a new topic: pop culture, relationships, money talk, spicy questions, brands, social media, red flags, lifestyle, and more.",
+        pairAutoTitle: "The question pair will be generated automatically",
+        pairAutoText: "Until the round ends, nobody can see which question was regular and which one belonged to the impostor.",
+        createLobbyBtn: "Create lobby",
+        joinLobbyTitle: "Join lobby",
+        lobbyCodePlaceholder: "Lobby code",
+        joinLobbyBtn: "Join",
+        currentLobbyLabel: "Current lobby",
+        startBtn: "Start new round",
+        passTitle: "2. Pass the phone",
+        passTextBefore: "Let",
+        passTextAfter: "tap the button and read their question without showing it to anyone else.",
+        privacyNotice: "Do not show your question to others. After answering, pass the phone to the next player.",
+        showQuestionBtn: "Show my question",
+        questionFor: "Question for",
+        answerLabel: "Your answer",
+        answerPlaceholder: "Enter a short answer",
+        saveAnswerBtn: "Save answer",
+        rerollQuestionsBtn: "Change the questions",
+        answersTitle: "3. Player answers",
+        answersText: "Discuss the answers. Regular players need to find the impostor. The impostor needs to blend in.",
+        goVoteBtn: "Go to voting",
+        voteTitle: "4. Who is the impostor?",
+        voteText: "Choose the player who you think received a different question.",
+        foundTitle: "Impostor found!",
+        escapedTitle: "The impostor escaped!",
+        foundText: (name) => `You voted for ${name}, and they really were the impostor.`,
+        escapedText: (voted, impostor) => `You voted for ${voted}, but the impostor was ${impostor}.`,
+        topicLabel: "Topic",
+        regularQuestionLabel: "Regular question",
+        impostorQuestionLabel: "Impostor question",
+        impostorLabel: "Impostor",
+        answerWord: "answer",
+        newRoundBtn: "New round",
+        backSetupBtn: "Back to setup",
+        historyTitle: "History",
+        historyText: "Finished games are saved here: topic, regular question, impostor question, and who the impostor was.",
+        emptyHistory: "History is empty for now. Finish the first round and it will appear here.",
+        gameWord: "Game",
+        voteWord: "Vote",
+        correctWord: "correct",
+        wrongWord: "wrong",
+        unknownTopic: "Unknown topic",
+        clearHistoryBtn: "Clear history",
+        clearHistoryConfirm: "Clear all game history?",
+        minPlayersAlert: "You need at least 3 players.",
+        emptyAnswerAlert: "Enter an answer before continuing."
+      }
+    };
+
+    const questionTemplates = [
+      {
+        topic: "dating",
+        topicLabel: { uk: "Dating & relationships", en: "Dating & relationships" },
+        normal: {
+          uk: "Який red flag ти б точно не пробачив/не пробачила на побаченні?",
+          en: "What red flag would you never forgive on a date?"
+        },
+        impostor: {
+          uk: "Назви red flag, про який люди часто говорять у TikTok.",
+          en: "Name a red flag people often talk about on TikTok."
+        }
+      },
+      {
+        topic: "spicy",
+        topicLabel: { uk: "Spicy questions", en: "Spicy questions" },
+        normal: {
+          uk: "Яке повідомлення ти б точно не хотів/хотіла, щоб випадково побачили друзі?",
+          en: "What kind of message would you definitely not want your friends to accidentally see?"
+        },
+        impostor: {
+          uk: "Назви тип повідомлення, який люди часто приховують від інших.",
+          en: "Name a type of message people often hide from others."
+        }
+      },
+      {
+        topic: "popculture",
+        topicLabel: { uk: "Pop culture", en: "Pop culture" },
+        normal: {
+          uk: "Який серіал ти б стер/стерла з памʼяті, щоб подивитися знову?",
+          en: "Which series would you erase from your memory just to watch it again?"
+        },
+        impostor: {
+          uk: "Назви серіал, який зараз вважається дуже хайповим.",
+          en: "Name a series that is considered very hyped right now."
+        }
+      },
+      {
+        topic: "socialmedia",
+        topicLabel: { uk: "Social media", en: "Social media" },
+        normal: {
+          uk: "Який тренд у соцмережах тобі реально подобається?",
+          en: "What social media trend do you actually like?"
+        },
+        impostor: {
+          uk: "Назви тренд, який часто зʼявляється в TikTok або Instagram.",
+          en: "Name a trend that often appears on TikTok or Instagram."
+        }
+      },
+      {
+        topic: "money",
+        topicLabel: { uk: "Money & prices", en: "Money & prices" },
+        normal: {
+          uk: "Скільки грошей ти готовий/готова витратити на {event}?",
+          en: "How much money would you be willing to spend on {event}?"
+        },
+        impostor: {
+          uk: "Напиши реалістичний проміжок суми від {min} до {max} доларів.",
+          en: "Write a realistic price range between {min} and {max} dollars."
+        },
+        values: {
+          event: {
+            uk: ["весілля", "подорож мрії", "новий ноутбук", "ремонт кімнати", "подарунок близькій людині", "аутфіт на важливу подію"],
+            en: ["a wedding", "a dream trip", "a new laptop", "a room makeover", "a gift for someone close", "an outfit for an important event"]
+          },
+          min: {
+            uk: ["500", "1 000", "2 000", "5 000"],
+            en: ["500", "1,000", "2,000", "5,000"]
+          },
+          max: {
+            uk: ["20 000", "50 000", "100 000", "150 000"],
+            en: ["20,000", "50,000", "100,000", "150,000"]
+          }
+        }
+      },
+      {
+        topic: "greenflags",
+        topicLabel: { uk: "Green flags", en: "Green flags" },
+        normal: {
+          uk: "Яка риса в людині моментально робить її attractive для тебе?",
+          en: "What trait instantly makes someone attractive to you?"
+        },
+        impostor: {
+          uk: "Назви рису, яку люди часто називають green flag.",
+          en: "Name a trait people often call a green flag."
+        }
+      },
+      {
+        topic: "party",
+        topicLabel: { uk: "Party stories", en: "Party stories" },
+        normal: {
+          uk: "Яка найхаотичніша річ може статися на вечірці?",
+          en: "What is the most chaotic thing that could happen at a party?"
+        },
+        impostor: {
+          uk: "Назви типову проблему, яка часто стається на вечірках.",
+          en: "Name a typical problem that often happens at parties."
+        }
+      },
+      {
+        topic: "brand",
+        topicLabel: { uk: "Brands", en: "Brands" },
+        normal: {
+          uk: "Який бренд ти б носив/носила, якби весь гардероб мав бути від одного бренду?",
+          en: "What brand would you wear if your whole wardrobe had to be from one brand?"
+        },
+        impostor: {
+          uk: "Назви бренд, який часто купують через статус.",
+          en: "Name a brand people often buy for status."
+        }
+      },
+      {
+        topic: "company",
+        topicLabel: { uk: "Companies", en: "Companies" },
+        normal: {
+          uk: "Керівником якої компанії ти хотів/хотіла б бути?",
+          en: "Which company would you want to be the CEO of?"
+        },
+        impostor: {
+          uk: "Яку компанію ти вважаєш найбільш переоціненою?",
+          en: "Which company do you think is the most overrated?"
+        }
+      },
+      {
+        topic: "travel",
+        topicLabel: { uk: "Travel taste", en: "Travel taste" },
+        normal: {
+          uk: "Який напрямок ти б вибрав/вибрала для спонтанної поїздки на вихідні?",
+          en: "What destination would you choose for a spontaneous weekend trip?"
+        },
+        impostor: {
+          uk: "Назви популярний напрямок для короткої поїздки.",
+          en: "Name a popular destination for a short trip."
+        }
+      },
+      {
+        topic: "hottakes",
+        topicLabel: { uk: "Hot takes", en: "Hot takes" },
+        normal: {
+          uk: "Яка твоя думка, за яку тебе могли б засудити в компанії друзів?",
+          en: "What opinion of yours could get you judged by your friends?"
+        },
+        impostor: {
+          uk: "Назви тему, через яку люди часто сперечаються в компанії.",
+          en: "Name a topic people often argue about in a friend group."
+        }
+      }
+    ];
+
+    let currentLanguage = localStorage.getItem("impostorGameLanguage") || "uk";
+    let game = null;
+    let currentLobbyCode = localStorage.getItem("impostorLobbyCode") || null;
+    let currentPlayerId = localStorage.getItem("impostorPlayerId") || null;
+    let currentLobbyData = null;
+    let history = loadHistory();
+    let lobbyPlayers = loadLobbyPlayers();
+
+    const $ = (id) => document.getElementById(id);
+    const screens = ["setupScreen", "passScreen", "questionScreen", "answersScreen", "voteScreen", "resultScreen"];
+
+    function t(key) {
+      return translations[currentLanguage][key] || translations.en[key] || key;
+    }
+
+    function showScreen(id) {
+      screens.forEach(screen => $(screen).classList.add("hidden"));
+      $(id).classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function randomItem(array) {
+      if (!Array.isArray(array) || array.length === 0) throw new Error("randomItem expected a non-empty array.");
+      return array[Math.floor(Math.random() * array.length)];
+    }
+
+    function localize(value) {
+      if (typeof value === "string") return value;
+      return value[currentLanguage] || value.en || value.uk || "";
+    }
+
+    function createQuestionPairFromTemplate(template) {
+      if (!template || !template.normal || !template.impostor) throw new Error("Invalid question template.");
+
+      let normal = localize(template.normal);
+      let impostor = localize(template.impostor);
+
+      if (template.values) {
+        Object.entries(template.values).forEach(([key, valuesByLanguage]) => {
+          const values = valuesByLanguage[currentLanguage] || valuesByLanguage.en || valuesByLanguage.uk;
+          const value = randomItem(values);
+          normal = normal.replaceAll(`{${key}}`, value);
+          impostor = impostor.replaceAll(`{${key}}`, value);
+        });
+      }
+
+      return {
+        normal,
+        impostor,
+        topic: template.topic,
+        topicLabel: localize(template.topicLabel),
+        language: currentLanguage
+      };
+    }
+
+    function questionKey(pair) {
+      return `${pair.language}::${pair.topic}::${pair.normal}::${pair.impostor}`;
+    }
+
+    function loadUsedQuestionKeys() {
+      try {
+        const saved = localStorage.getItem("usedQuestionKeys");
+        return saved ? JSON.parse(saved) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveUsedQuestionKeys(keys) {
+      localStorage.setItem("usedQuestionKeys", JSON.stringify(keys));
+    }
+
+    function generateQuestionPair() {
+      const maxAttempts = questionTemplates.length * 25;
+      let usedKeys = loadUsedQuestionKeys();
+      let pair = createQuestionPairFromTemplate(randomItem(questionTemplates));
+      let key = questionKey(pair);
+      let attempts = 0;
+
+      while (usedKeys.includes(key) && attempts < maxAttempts) {
+        pair = createQuestionPairFromTemplate(randomItem(questionTemplates));
+        key = questionKey(pair);
+        attempts++;
+      }
+
+      if (usedKeys.includes(key)) {
+        usedKeys = [];
+      }
+
+      usedKeys.push(key);
+      saveUsedQuestionKeys(usedKeys.slice(-300));
+      return pair;
+    }
+
+    function loadHistory() {
+      try {
+        const saved = localStorage.getItem("impostorGameHistory");
+        return saved ? JSON.parse(saved) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveHistory() {
+      localStorage.setItem("impostorGameHistory", JSON.stringify(history));
+    }
+
+    function loadLobbyPlayers() {
+      try {
+        const saved = localStorage.getItem("impostorLobbyPlayers");
+        return saved ? JSON.parse(saved) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveLobbyPlayers() {
+      localStorage.setItem("impostorLobbyPlayers", JSON.stringify(lobbyPlayers));
+    }
+
+    function renderHistory() {
+      const list = $("historyList");
+      list.innerHTML = "";
+
+      if (!history.length) {
+        list.innerHTML = `<div class="history-card"><p>${escapeHTML(t("emptyHistory"))}</p></div>`;
+        return;
+      }
+
+      history.slice().reverse().forEach((round, index) => {
+        const card = document.createElement("div");
+        card.className = "history-card";
+        card.innerHTML = `
+          <strong>${escapeHTML(t("gameWord"))} ${history.length - index}</strong>
+          <div class="meta">${escapeHTML(round.date)} · ${escapeHTML(round.topicLabel || t("unknownTopic"))}</div>
+          <p><strong>${escapeHTML(t("regularQuestionLabel"))}:</strong> ${escapeHTML(round.normalQuestion)}</p>
+          <p><strong>${escapeHTML(t("impostorQuestionLabel"))}:</strong> ${escapeHTML(round.impostorQuestion)}</p>
+          <p><strong>${escapeHTML(t("impostorLabel"))}:</strong> ${escapeHTML(round.impostorName)}</p>
+          <p><strong>${escapeHTML(t("voteWord"))}:</strong> ${escapeHTML(round.votedName)} ${round.guessedCorrectly ? "✅ " + escapeHTML(t("correctWord")) : "❌ " + escapeHTML(t("wrongWord"))}</p>
+        `;
+        list.appendChild(card);
+      });
+    }
+
+    function parsePlayers() {
+      return lobbyPlayers.map(name => name.trim()).filter(Boolean);
+    }
+
+    function renderPlayers() {
+      const list = $("playersList");
+      list.innerHTML = "";
+
+      if (!lobbyPlayers.length) {
+        list.innerHTML = `<div class="answer-card"><p>${escapeHTML(t("emptyPlayers"))}</p></div>`;
+        return;
+      }
+
+      lobbyPlayers.forEach((name, index) => {
+        const card = document.createElement("div");
+        card.className = "answer-card";
+        card.innerHTML = `<strong>${escapeHTML(name)}</strong><p>${escapeHTML(t("playerNumber"))} ${index + 1}</p>`;
+        list.appendChild(card);
+      });
+    }
+
+    function openJoinModal() {
+      $("joinModal").classList.remove("hidden");
+      setTimeout(() => $("joinNameInput").focus(), 50);
+    }
+
+    function closeJoinModal() {
+      $("joinModal").classList.add("hidden");
+      $("joinNameInput").value = "";
+    }
+
+    function addLobbyPlayer() {
+      const name = $("joinNameInput").value.trim();
+      if (!name) return;
+
+      if (!lobbyPlayers.includes(name)) {
+        lobbyPlayers.push(name);
+        saveLobbyPlayers();
+        renderPlayers();
+      }
+
+      closeJoinModal();
+    }
+
+    function shuffle(array) {
+      const copy = [...array];
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    function escapeHTML(text) {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function applyLanguage(lang) {
+      currentLanguage = lang;
+      localStorage.setItem("impostorGameLanguage", lang);
+      document.documentElement.lang = lang;
+
+      document.querySelectorAll("[data-i18n]").forEach(element => {
+        const key = element.dataset.i18n;
+        element.textContent = t(key);
+      });
+
+      document.querySelectorAll("[data-placeholder-key]").forEach(element => {
+        element.placeholder = t(element.dataset.placeholderKey);
+      });
+
+      document.querySelectorAll(".lang-btn").forEach(button => {
+        button.classList.toggle("active", button.dataset.lang === lang);
+      });
+
+      renderPlayers();
+      renderHistory();
+      if (game) {
+        if (!$("answersScreen").classList.contains("hidden")) renderAnswers();
+        if (!$("voteScreen").classList.contains("hidden")) renderVotes();
+      }
+    }
+
+    async function createLobby() {
+      const players = parsePlayers();
+
+      if (players.length < 1) {
+        alert(t("minPlayersAlert"));
+        return;
+      }
+
+      const lobbyCode = createLobbyCode();
+      const hostId = crypto.randomUUID();
+
+      await set(ref(db, `lobbies/${lobbyCode}`), {
+        phase: "lobby",
+        hostId,
+        createdAt: Date.now(),
+        players: players.reduce((acc, name, index) => {
+          const id = index === 0 ? hostId : crypto.randomUUID();
+          acc[id] = {
+            name,
+            connected: true
+          };
+          return acc;
+        }, {})
+      });
+
+      currentLobbyCode = lobbyCode;
+      currentPlayerId = hostId;
+
+      localStorage.setItem("impostorLobbyCode", lobbyCode);
+      localStorage.setItem("impostorPlayerId", hostId);
+
+      listenToLobby(lobbyCode);
+    }
+
+    async function joinLobby() {
+      const lobbyCode = $("lobbyCodeInput").value.trim().toUpperCase();
+      const playerName = prompt(currentLanguage === "uk" ? "Введи своє імʼя" : "Enter your name");
+
+      if (!lobbyCode || !playerName) return;
+
+      const snapshot = await get(child(ref(db), `lobbies/${lobbyCode}`));
+
+      if (!snapshot.exists()) {
+        alert(currentLanguage === "uk" ? "Лоббі не знайдено" : "Lobby not found");
+        return;
+      }
+
+      const playerId = crypto.randomUUID();
+
+      await update(ref(db, `lobbies/${lobbyCode}/players`), {
+        [playerId]: {
+          name: playerName,
+          connected: true
+        }
+      });
+
+      currentLobbyCode = lobbyCode;
+      currentPlayerId = playerId;
+
+      localStorage.setItem("impostorLobbyCode", lobbyCode);
+      localStorage.setItem("impostorPlayerId", playerId);
+
+      listenToLobby(lobbyCode);
+    }
+
+    function listenToLobby(lobbyCode) {
+      onValue(ref(db, `lobbies/${lobbyCode}`), (snapshot) => {
+        const lobby = snapshot.val();
+
+        if (!lobby) return;
+
+        currentLobbyData = lobby;
+
+        $("currentLobbyCard").classList.remove("hidden");
+        $("currentLobbyCode").textContent = lobbyCode;
+
+        const players = Object.values(lobby.players || {}).map(player => player.name);
+        lobbyPlayers = players;
+        saveLobbyPlayers();
+        renderPlayers();
+
+        if (lobby.hostId === currentPlayerId) {
+          $("startBtn").classList.remove("hidden");
+        }
+      });
+    }
+
+    function startGame() {
+      const players = parsePlayers();
+      if (players.length < 3) {
+        alert(t("minPlayersAlert"));
+        return;
+      }
+
+      const pair = generateQuestionPair();
+      const shuffledPlayers = shuffle(players);
+      const impostorIndex = Math.floor(Math.random() * shuffledPlayers.length);
+
+      game = {
+        language: currentLanguage,
+        players: shuffledPlayers.map((name, index) => ({
+          name,
+          isImpostor: index === impostorIndex,
+          question: index === impostorIndex ? pair.impostor : pair.normal,
+          answer: ""
+        })),
+        currentIndex: 0,
+        pair,
+        savedToHistory: false
+      };
+
+      renderPassScreen();
+      showScreen("passScreen");
+    }
+
+    function renderPassScreen() {
+      const player = game.players[game.currentIndex];
+      $("currentPlayerName").textContent = player.name;
+    }
+
+    function updateRerollButtonVisibility() {
+      const button = $("rerollQuestionsBtn");
+      button.classList.toggle("hidden", !game || game.currentIndex !== 0);
+    }
+
+    function rerollQuestions() {
+      if (!game || game.currentIndex !== 0) return;
+
+      const previousKey = questionKey(game.pair);
+      let pair = generateQuestionPair();
+      let attempts = 0;
+
+      while (questionKey(pair) === previousKey && attempts < 10) {
+        pair = generateQuestionPair();
+        attempts++;
+      }
+
+      game.pair = pair;
+      game.players = game.players.map(player => ({
+        ...player,
+        question: player.isImpostor ? pair.impostor : pair.normal
+      }));
+
+      $("questionText").textContent = game.players[0].question;
+    }
+
+    function showQuestion() {
+      const player = game.players[game.currentIndex];
+      $("questionPlayerName").textContent = player.name;
+      $("questionText").textContent = player.question;
+      $("answerInput").value = "";
+      updateRerollButtonVisibility();
+      showScreen("questionScreen");
+      setTimeout(() => $("answerInput").focus(), 150);
+    }
+
+    function saveAnswer() {
+      const answer = $("answerInput").value.trim();
+      if (!answer) {
+        alert(t("emptyAnswerAlert"));
+        return;
+      }
+
+      game.players[game.currentIndex].answer = answer;
+      game.currentIndex++;
+
+      if (game.currentIndex >= game.players.length) {
+        renderAnswers();
+        showScreen("answersScreen");
+      } else {
+        renderPassScreen();
+        showScreen("passScreen");
+      }
+    }
+
+    function renderAnswers() {
+      const answersList = $("answersList");
+      answersList.innerHTML = "";
+      shuffle(game.players).forEach(player => {
+        const card = document.createElement("div");
+        card.className = "answer-card";
+        card.innerHTML = `<strong>${escapeHTML(player.name)}</strong><p>${escapeHTML(player.answer)}</p>`;
+        answersList.appendChild(card);
+      });
+    }
+
+    function renderVotes() {
+      const grid = $("voteGrid");
+      grid.innerHTML = "";
+      game.players.forEach(player => {
+        const btn = document.createElement("button");
+        btn.className = "vote-btn";
+        btn.textContent = player.name;
+        btn.addEventListener("click", () => showResult(player.name));
+        grid.appendChild(btn);
+      });
+    }
+
+    function showResult(votedName) {
+      const impostor = game.players.find(player => player.isImpostor);
+      const guessedCorrectly = votedName === impostor.name;
+
+      if (!game.savedToHistory) {
+        history.push({
+          date: new Date().toLocaleString([], {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+          }),
+          language: game.language,
+          topic: game.pair.topic,
+          topicLabel: game.pair.topicLabel,
+          normalQuestion: game.pair.normal,
+          impostorQuestion: game.pair.impostor,
+          impostorName: impostor.name,
+          votedName,
+          guessedCorrectly
+        });
+        saveHistory();
+        renderHistory();
+        game.savedToHistory = true;
+      }
+
+      $("resultEmoji").textContent = guessedCorrectly ? "🎯" : "😎";
+      $("resultTitle").textContent = guessedCorrectly ? t("foundTitle") : t("escapedTitle");
+      $("resultText").textContent = guessedCorrectly ? t("foundText")(votedName) : t("escapedText")(votedName, impostor.name);
+
+      $("revealQuestions").innerHTML = `
+        <div class="answer-card"><strong>${escapeHTML(t("topicLabel"))}</strong><p>${escapeHTML(game.pair.topicLabel)}</p></div>
+        <div class="answer-card"><strong>${escapeHTML(t("regularQuestionLabel"))}</strong><p>${escapeHTML(game.pair.normal)}</p></div>
+        <div class="answer-card"><strong>${escapeHTML(t("impostorQuestionLabel"))}</strong><p>${escapeHTML(game.pair.impostor)}</p></div>
+        <div class="answer-card"><strong>${escapeHTML(t("impostorLabel"))}</strong><p>${escapeHTML(impostor.name)} — ${escapeHTML(t("answerWord"))}: ${escapeHTML(impostor.answer)}</p></div>
+      `;
+
+      showScreen("resultScreen");
+    }
+
+    function clearHistory() {
+      const confirmed = confirm(t("clearHistoryConfirm"));
+      if (!confirmed) return;
+      history = [];
+      localStorage.removeItem("impostorGameHistory");
+      renderHistory();
+    }
+
+    function runTests() {
+      console.group("Find the Impostor tests");
+      console.assert(typeof generateQuestionPair === "function", "generateQuestionPair should exist.");
+      console.assert(Array.isArray(lobbyPlayers), "Lobby players should be an array.");
+      ["uk", "en"].forEach(lang => {
+        const previous = currentLanguage;
+        currentLanguage = lang;
+        const pair = generateQuestionPair();
+        console.assert(Boolean(pair.normal), `${lang}: regular question exists.`);
+        console.assert(Boolean(pair.impostor), `${lang}: impostor question exists.`);
+        console.assert(Boolean(pair.topicLabel), `${lang}: topic label exists.`);
+        console.assert(!pair.normal.includes("{") && !pair.impostor.includes("{"), `${lang}: placeholders are replaced.`);
+        console.assert(typeof translations[lang].rerollQuestionsBtn === "string", `${lang}: reroll button translation exists.`);
+        currentLanguage = previous;
+      });
+      const shuffled = shuffle(["A", "B", "C"]);
+      console.assert(shuffled.length === 3 && shuffled.includes("A") && shuffled.includes("B") && shuffled.includes("C"), "Shuffle should keep all players.");
+      console.groupEnd();
+    }
+
+    $("createLobbyBtn").addEventListener("click", createLobby);
+    $("joinLobbyBtn").addEventListener("click", joinLobby);
+    $("startBtn").addEventListener("click", startGame);
+    $("openJoinModalBtn").addEventListener("click", openJoinModal);
+    $("closeJoinModalBtn").addEventListener("click", closeJoinModal);
+    $("joinPlayerBtn").addEventListener("click", addLobbyPlayer);
+    $("joinNameInput").addEventListener("keydown", (event) => { if (event.key === "Enter") addLobbyPlayer(); });
+    $("clearPlayersBtn").addEventListener("click", () => {
+      lobbyPlayers = [];
+      saveLobbyPlayers();
+      renderPlayers();
+    });
+    $("showQuestionBtn").addEventListener("click", showQuestion);
+    $("saveAnswerBtn").addEventListener("click", saveAnswer);
+    $("rerollQuestionsBtn").addEventListener("click", rerollQuestions);
+    $("goVoteBtn").addEventListener("click", () => { renderVotes(); showScreen("voteScreen"); });
+    $("playAgainBtn").addEventListener("click", startGame);
+    $("backSetupBtn").addEventListener("click", () => showScreen("setupScreen"));
+    $("clearHistoryBtn").addEventListener("click", clearHistory);
+    $("answerInput").addEventListener("keydown", (event) => { if (event.key === "Enter") saveAnswer(); });
+
+    document.querySelectorAll(".lang-btn").forEach(button => {
+      button.addEventListener("click", () => applyLanguage(button.dataset.lang));
+    });
+
+    applyLanguage(currentLanguage);
+    renderPlayers();
+    runTests();
+  </script>
+</body>
+</html>
