@@ -20,6 +20,7 @@
       --accent-hover: #229ed9;
       --green: #32b768;
       --red: #e85d75;
+      --warning: #ffc857;
       --shadow: 0 14px 32px rgba(0,0,0,.22);
     }
 
@@ -250,7 +251,7 @@
       margin-top: 14px;
     }
 
-    .answer-card, .history-card, .topic-preview {
+    .answer-card, .history-card, .topic-preview, .player-card {
       padding: 13px 14px;
       background: var(--surface-2);
       border: 1px solid var(--border);
@@ -264,14 +265,14 @@
 
     .answer-card:nth-child(even) { border-bottom-right-radius: 6px; }
 
-    .answer-card strong, .history-card strong, .topic-preview strong {
+    .answer-card strong, .history-card strong, .topic-preview strong, .player-card strong {
       display: block;
       margin-bottom: 5px;
       color: var(--text);
       font-size: 14px;
     }
 
-    .answer-card p, .history-card p, .topic-preview p {
+    .answer-card p, .history-card p, .topic-preview p, .player-card p {
       margin: 0;
       color: var(--muted);
       line-height: 1.42;
@@ -334,9 +335,7 @@
       line-height: 1.45;
     }
 
-    .rules-content p {
-      margin: 10px 0 0;
-    }
+    .rules-content p { margin: 10px 0 0; }
 
     .modal {
       position: fixed;
@@ -396,82 +395,71 @@
     </section>
 
     <section id="setupScreen" class="card">
-      <h2 class="screen-title" data-i18n="setupTitle">1. Налаштування гри</h2>
+      <h2 class="screen-title" data-i18n="setupTitle">1. Лобі</h2>
       <div class="grid">
         <div>
-          <label data-i18n="playersLabel">Гравці</label>
-          <div id="playersList" class="players-list"></div>
-          <div class="btn-row">
-            <button class="primary" id="openJoinModalBtn" data-i18n="openJoinModalBtn">Додати гравця</button>
-            <button class="ghost" id="clearPlayersBtn" data-i18n="clearPlayersBtn">Очистити гравців</button>
+          <div class="topic-preview">
+            <strong data-i18n="yourNameLabel">Твоє імʼя</strong>
+            <p id="myNameText">—</p>
+            <div class="btn-row">
+              <button class="ghost" id="changeNameBtn" data-i18n="changeNameBtn">Змінити імʼя</button>
+            </div>
           </div>
         </div>
         <div>
-          <div class="topic-preview" style="height:100%; display:flex; flex-direction:column; justify-content:center;">
-            <strong data-i18n="randomTopicsTitle">Випадкові секретні теми</strong>
-            <p data-i18n="randomTopicsText">Кожен раунд автоматично отримує нову тему: попкультура, стосунки, money talk, spicy питання, бренди, соцмережі, red flags, lifestyle та інші.</p>
+          <div class="topic-preview">
+            <strong data-i18n="currentLobbyLabel">Поточне лобі</strong>
+            <p id="currentLobbyCode">—</p>
           </div>
         </div>
       </div>
-      <div class="notice">
-        <strong data-i18n="pairAutoTitle">Пара питань буде згенерована автоматично</strong>
-        <p class="small" data-i18n="pairAutoText">До завершення раунду ніхто не бачить, яке питання було звичайним, а яке — для імпостора.</p>
-      </div>
+
       <div class="btn-row">
-        <button class="primary" id="createLobbyBtn" data-i18n="createLobbyBtn">Створити лоббі</button>
+        <button class="primary" id="createLobbyBtn" data-i18n="createLobbyBtn">Створити лобі</button>
       </div>
 
       <div class="notice" style="margin-top:14px;">
-        <strong data-i18n="joinLobbyTitle">Приєднатися до лоббі</strong>
+        <strong data-i18n="joinLobbyTitle">Приєднатися до лобі</strong>
         <div class="btn-row">
-          <input id="lobbyCodeInput" autocomplete="off" data-placeholder-key="lobbyCodePlaceholder" placeholder="ABCD" style="max-width:160px; text-transform:uppercase;" />
+          <input id="lobbyCodeInput" autocomplete="off" data-placeholder-key="lobbyCodePlaceholder" placeholder="ABCD" style="max-width:170px; text-transform:uppercase;" />
           <button class="success" id="joinLobbyBtn" data-i18n="joinLobbyBtn">Приєднатися</button>
         </div>
       </div>
 
-      <div id="currentLobbyCard" class="topic-preview hidden" style="margin-top:14px;">
-        <strong data-i18n="currentLobbyLabel">Поточне лоббі</strong>
-        <p><span id="currentLobbyCode">----</span></p>
-      </div>
+      <div class="players-list" id="playersList"></div>
 
       <div class="btn-row">
         <button class="primary hidden" id="startBtn" data-i18n="startBtn">Почати новий раунд</button>
       </div>
     </section>
 
-    <section id="passScreen" class="card hidden">
-      <h2 class="screen-title" data-i18n="passTitle">2. Передай телефон</h2>
-      <p class="subtitle"><span data-i18n="passTextBefore">Нехай</span> <span id="currentPlayerName" class="player-name"></span> <span data-i18n="passTextAfter">натисне кнопку і подивиться своє питання так, щоб інші не бачили.</span></p>
-      <div class="notice" data-i18n="privacyNotice">Не показуйте питання іншим. Після відповіді передайте телефон наступному гравцю.</div>
-      <div class="btn-row">
-        <button class="primary" id="showQuestionBtn" data-i18n="showQuestionBtn">Показати моє питання</button>
-      </div>
-    </section>
-
     <section id="questionScreen" class="card hidden">
-      <h2 class="screen-title"><span data-i18n="questionFor">Питання для</span> <span id="questionPlayerName" class="player-name"></span></h2>
+      <h2 class="screen-title" data-i18n="questionTitle">Твоє питання</h2>
+      <p class="subtitle"><span data-i18n="questionFor">Питання для</span> <span id="questionPlayerName" class="player-name"></span></p>
       <div id="questionText" class="big-question"></div>
       <label for="answerInput" data-i18n="answerLabel">Твоя відповідь</label>
       <input id="answerInput" autocomplete="off" data-placeholder-key="answerPlaceholder" placeholder="Введи коротку відповідь" />
       <div class="btn-row">
-        <button class="ghost" id="rerollQuestionsBtn" data-i18n="rerollQuestionsBtn">Змінити питання</button>
+        <button class="ghost hidden" id="rerollQuestionsBtn" data-i18n="rerollQuestionsBtn">Змінити питання</button>
         <button class="success" id="saveAnswerBtn" data-i18n="saveAnswerBtn">Зберегти відповідь</button>
       </div>
+      <p class="subtitle" id="answerStatusText"></p>
     </section>
 
     <section id="answersScreen" class="card hidden">
-      <h2 class="screen-title" data-i18n="answersTitle">3. Відповіді гравців</h2>
+      <h2 class="screen-title" data-i18n="answersTitle">2. Відповіді гравців</h2>
       <p class="subtitle" data-i18n="answersText">Обговоріть відповіді. Завдання звичайних гравців — знайти імпостора. Завдання імпостора — не видати себе.</p>
       <div id="answersList" class="answers"></div>
       <div class="btn-row">
-        <button class="primary" id="goVoteBtn" data-i18n="goVoteBtn">Перейти до голосування</button>
+        <button class="primary hidden" id="goVoteBtn" data-i18n="goVoteBtn">Перейти до голосування</button>
       </div>
     </section>
 
     <section id="voteScreen" class="card hidden">
-      <h2 class="screen-title" data-i18n="voteTitle">4. Хто імпостор?</h2>
+      <h2 class="screen-title" data-i18n="voteTitle">3. Хто імпостор?</h2>
       <p class="subtitle" data-i18n="voteText">Виберіть гравця, який, на вашу думку, отримав інше питання.</p>
       <div id="voteGrid" class="vote-grid"></div>
+      <p class="subtitle" id="voteStatusText"></p>
     </section>
 
     <section id="resultScreen" class="card result hidden">
@@ -479,9 +467,10 @@
       <h2 id="resultTitle" class="screen-title"></h2>
       <p id="resultText" class="subtitle"></p>
       <div id="revealQuestions" class="answers"></div>
+      <div id="voteResultsList" class="answers"></div>
       <div class="btn-row" style="justify-content:center">
-        <button class="primary" id="playAgainBtn" data-i18n="newRoundBtn">Новий раунд</button>
-        <button class="ghost" id="backSetupBtn" data-i18n="backSetupBtn">До налаштувань</button>
+        <button class="primary hidden" id="playAgainBtn" data-i18n="newRoundBtn">Новий раунд</button>
+        <button class="ghost" id="backSetupBtn" data-i18n="backSetupBtn">До лобі</button>
       </div>
     </section>
 
@@ -493,15 +482,15 @@
         <button class="danger" id="clearHistoryBtn" data-i18n="clearHistoryBtn">Очистити історію</button>
       </div>
     </section>
-      <div id="joinModal" class="modal hidden">
+
+    <div id="nameModal" class="modal hidden">
       <div class="modal-card">
-        <h2 class="screen-title" data-i18n="joinTitle">Приєднатися до гри</h2>
-        <p class="subtitle" data-i18n="joinText">Введи імʼя гравця та додай його в лобі.</p>
-        <label for="joinNameInput" data-i18n="joinNameLabel">Імʼя гравця</label>
-        <input id="joinNameInput" autocomplete="off" data-placeholder-key="joinNamePlaceholder" placeholder="Введи імʼя" />
+        <h2 class="screen-title" data-i18n="nameModalTitle">Як тебе звати?</h2>
+        <p class="subtitle" data-i18n="nameModalText">Введи імʼя, яке бачитимуть інші гравці.</p>
+        <label for="nameInput" data-i18n="nameInputLabel">Імʼя</label>
+        <input id="nameInput" autocomplete="off" data-placeholder-key="nameInputPlaceholder" placeholder="Введи імʼя" />
         <div class="btn-row">
-          <button class="success" id="joinPlayerBtn" data-i18n="joinBtn">Приєднатися</button>
-          <button class="ghost" id="closeJoinModalBtn" data-i18n="cancelBtn">Скасувати</button>
+          <button class="success" id="saveNameBtn" data-i18n="saveNameBtn">Зберегти</button>
         </div>
       </div>
     </div>
@@ -532,70 +521,63 @@
     const firebaseApp = initializeApp(firebaseConfig);
     const db = getDatabase(firebaseApp);
 
-    function createLobbyCode() {
-      return Math.random().toString(36).substring(2, 6).toUpperCase();
-    }
-
     const translations = {
       uk: {
         appTitle: "Find the Impostor",
-        appSubtitle: "Локальна HTML5-гра: кожен раунд автоматично отримує нову випадкову тему та пару питань. Питання приховані до кінця раунду.",
+        appSubtitle: "Кожен раунд автоматично отримує нову випадкову тему та пару питань. Питання приховані до кінця раунду.",
         rulesSummary: "Як грати",
         rulesText1: "На початку кожного раунду кожен гравець отримує питання. Питання одного гравця буде відрізнятися від питання групи — він імпостор.",
         rulesText2: "Твоя ціль як гравця — визначити імпостора і переконати інших проголосувати проти нього.",
         rulesText3: "Ціль імпостора — переконати решту компанії, що він отримав таке саме питання, як усі інші, і схилити їх проголосувати проти іншого гравця. Якщо після голосування імпостор залишається в грі, він перемагає.",
-        setupTitle: "1. Налаштування гри",
-        playersLabel: "Гравці",
-        playersPlaceholder: "Саша, Даня, Марк, Аня",
-        openJoinModalBtn: "Додати гравця",
-        clearPlayersBtn: "Очистити гравців",
-        emptyPlayers: "Гравців ще немає. Додай мінімум 3 гравці, щоб почати.",
-        playerNumber: "Гравець",
-        joinTitle: "Приєднатися до гри",
-        joinText: "Введи імʼя гравця та додай його в лобі.",
-        joinNameLabel: "Імʼя гравця",
-        joinNamePlaceholder: "Введи імʼя",
-        joinBtn: "Приєднатися",
-        cancelBtn: "Скасувати",
-        randomTopicsTitle: "Випадкові секретні теми",
-        randomTopicsText: "Кожен раунд автоматично отримує нову тему: попкультура, стосунки, money talk, spicy питання, бренди, соцмережі, red flags, lifestyle та інші.",
-        pairAutoTitle: "Пара питань буде згенерована автоматично",
-        pairAutoText: "До завершення раунду ніхто не бачить, яке питання було звичайним, а яке — для імпостора.",
-        createLobbyBtn: "Створити лоббі",
-        joinLobbyTitle: "Приєднатися до лоббі",
-        lobbyCodePlaceholder: "Код лоббі",
+        setupTitle: "1. Лобі",
+        yourNameLabel: "Твоє імʼя",
+        changeNameBtn: "Змінити імʼя",
+        currentLobbyLabel: "Поточне лобі",
+        createLobbyBtn: "Створити лобі",
+        joinLobbyTitle: "Приєднатися до лобі",
+        lobbyCodePlaceholder: "Код лобі",
         joinLobbyBtn: "Приєднатися",
-        currentLobbyLabel: "Поточне лоббі",
+        playersInLobby: "Гравці в лобі",
+        noLobbyPlayers: "Створи лобі або приєднайся до існуючого, щоб побачити гравців.",
+        hostLabel: "хост",
+        youLabel: "ти",
         startBtn: "Почати новий раунд",
-        passTitle: "2. Передай телефон",
-        passTextBefore: "Нехай",
-        passTextAfter: "натисне кнопку і подивиться своє питання так, щоб інші не бачили.",
-        privacyNotice: "Не показуйте питання іншим. Після відповіді передайте телефон наступному гравцю.",
-        showQuestionBtn: "Показати моє питання",
+        needNameAlert: "Спочатку введи своє імʼя.",
+        needLobbyAlert: "Спочатку створи лобі або приєднайся до нього.",
+        minCreateAlert: "Щоб створити лобі, потрібен хоча б 1 гравець.",
+        minPlayersAlert: "Щоб почати гру, потрібно мінімум 3 гравці.",
+        lobbyNotFound: "Лобі не знайдено.",
+        questionTitle: "Твоє питання",
         questionFor: "Питання для",
         answerLabel: "Твоя відповідь",
         answerPlaceholder: "Введи коротку відповідь",
         saveAnswerBtn: "Зберегти відповідь",
+        answerSaved: "Відповідь збережено. Чекаємо інших гравців.",
         rerollQuestionsBtn: "Змінити питання",
-        answersTitle: "3. Відповіді гравців",
+        answersTitle: "2. Відповіді гравців",
         answersText: "Обговоріть відповіді. Завдання звичайних гравців — знайти імпостора. Завдання імпостора — не видати себе.",
+        waitingAnswers: "Чекаємо, поки всі гравці дадуть відповідь.",
         goVoteBtn: "Перейти до голосування",
-        voteTitle: "4. Хто імпостор?",
+        voteTitle: "3. Хто імпостор?",
         voteText: "Виберіть гравця, який, на вашу думку, отримав інше питання.",
+        voteSaved: "Голос збережено. Чекаємо інших гравців.",
+        alreadyVoted: "Ти вже проголосував/проголосувала.",
         foundTitle: "Імпостора знайдено!",
         escapedTitle: "Імпостор переміг!",
-        foundText: (name) => `Ви проголосували за ${name}, і це справді був/була імпостор.`,
-        escapedText: (voted, impostor) => `Ви проголосували за ${voted}, але імпостором був/була ${impostor}.`,
+        foundText: (name) => `${name} отримав/отримала найбільше голосів. Це справді був/була імпостор.`,
+        escapedText: (voted, impostor) => `${voted} отримав/отримала найбільше голосів, але імпостором був/була ${impostor}.`,
         topicLabel: "Тема",
         regularQuestionLabel: "Питання звичайних гравців",
         impostorQuestionLabel: "Питання імпостора",
         impostorLabel: "Імпостор",
         answerWord: "відповідь",
+        votesLabel: "Голоси",
+        noVotesLabel: "немає голосів",
         newRoundBtn: "Новий раунд",
-        backSetupBtn: "До налаштувань",
+        backSetupBtn: "До лобі",
         historyTitle: "Історія",
-        historyText: "Тут зберігаються завершені ігри: тема, звичайне питання, питання імпостора і хто був імпостором.",
-        emptyHistory: "Історія поки порожня. Завершіть перший раунд, і він зʼявиться тут.",
+        historyText: "Тут зберігаються завершені ігри на цьому пристрої.",
+        emptyHistory: "Історія поки порожня.",
         gameWord: "Гра",
         voteWord: "Голосування",
         correctWord: "правильно",
@@ -603,68 +585,69 @@
         unknownTopic: "Невідома тема",
         clearHistoryBtn: "Очистити історію",
         clearHistoryConfirm: "Очистити всю історію ігор?",
-        minPlayersAlert: "Потрібно мінімум 3 гравці.",
-        emptyAnswerAlert: "Введи відповідь перед тим, як продовжити."
+        emptyAnswerAlert: "Введи відповідь перед тим, як продовжити.",
+        nameModalTitle: "Як тебе звати?",
+        nameModalText: "Введи імʼя, яке бачитимуть інші гравці.",
+        nameInputLabel: "Імʼя",
+        nameInputPlaceholder: "Введи імʼя",
+        saveNameBtn: "Зберегти"
       },
       en: {
         appTitle: "Find the Impostor",
-        appSubtitle: "A local HTML5 party game: each round gets a random topic and a hidden pair of questions. The questions stay secret until the end.",
+        appSubtitle: "Each round automatically gets a random topic and a hidden pair of questions. The questions stay secret until the end.",
         rulesSummary: "How to play",
         rulesText1: "At the beginning of each round, every player receives a question. One player's question will be different from the group — he is the impostor.",
         rulesText2: "Your objective as a player is to deduce the impostor and convince other players to vote him out.",
         rulesText3: "Impostor's objective is to convince the rest of the party that he got the same question as everyone else and persuade them to vote for another player. If the impostor is still in the game after voting, he wins.",
-        setupTitle: "1. Game setup",
-        playersLabel: "Players",
-        playersPlaceholder: "Sasha, Daniel, Mark, Anna",
-        openJoinModalBtn: "Add player",
-        clearPlayersBtn: "Clear players",
-        emptyPlayers: "No players yet. Add at least 3 players to start.",
-        playerNumber: "Player",
-        joinTitle: "Join the game",
-        joinText: "Enter a player name and add them to the lobby.",
-        joinNameLabel: "Player name",
-        joinNamePlaceholder: "Enter name",
-        joinBtn: "Join",
-        cancelBtn: "Cancel",
-        randomTopicsTitle: "Random classified topics",
-        randomTopicsText: "Every round automatically gets a new topic: pop culture, relationships, money talk, spicy questions, brands, social media, red flags, lifestyle, and more.",
-        pairAutoTitle: "The question pair will be generated automatically",
-        pairAutoText: "Until the round ends, nobody can see which question was regular and which one belonged to the impostor.",
+        setupTitle: "1. Lobby",
+        yourNameLabel: "Your name",
+        changeNameBtn: "Change name",
+        currentLobbyLabel: "Current lobby",
         createLobbyBtn: "Create lobby",
         joinLobbyTitle: "Join lobby",
         lobbyCodePlaceholder: "Lobby code",
         joinLobbyBtn: "Join",
-        currentLobbyLabel: "Current lobby",
+        playersInLobby: "Players in lobby",
+        noLobbyPlayers: "Create a lobby or join one to see players.",
+        hostLabel: "host",
+        youLabel: "you",
         startBtn: "Start new round",
-        passTitle: "2. Pass the phone",
-        passTextBefore: "Let",
-        passTextAfter: "tap the button and read their question without showing it to anyone else.",
-        privacyNotice: "Do not show your question to others. After answering, pass the phone to the next player.",
-        showQuestionBtn: "Show my question",
+        needNameAlert: "Enter your name first.",
+        needLobbyAlert: "Create or join a lobby first.",
+        minCreateAlert: "You need at least 1 player to create a lobby.",
+        minPlayersAlert: "You need at least 3 players to start the game.",
+        lobbyNotFound: "Lobby not found.",
+        questionTitle: "Your question",
         questionFor: "Question for",
         answerLabel: "Your answer",
         answerPlaceholder: "Enter a short answer",
         saveAnswerBtn: "Save answer",
+        answerSaved: "Answer saved. Waiting for other players.",
         rerollQuestionsBtn: "Change the questions",
-        answersTitle: "3. Player answers",
+        answersTitle: "2. Player answers",
         answersText: "Discuss the answers. Regular players need to find the impostor. The impostor needs to blend in.",
+        waitingAnswers: "Waiting for all players to answer.",
         goVoteBtn: "Go to voting",
-        voteTitle: "4. Who is the impostor?",
+        voteTitle: "3. Who is the impostor?",
         voteText: "Choose the player who you think received a different question.",
+        voteSaved: "Vote saved. Waiting for other players.",
+        alreadyVoted: "You already voted.",
         foundTitle: "Impostor found!",
         escapedTitle: "The impostor escaped!",
-        foundText: (name) => `You voted for ${name}, and they really were the impostor.`,
-        escapedText: (voted, impostor) => `You voted for ${voted}, but the impostor was ${impostor}.`,
+        foundText: (name) => `${name} received the most votes, and they really were the impostor.`,
+        escapedText: (voted, impostor) => `${voted} received the most votes, but the impostor was ${impostor}.`,
         topicLabel: "Topic",
         regularQuestionLabel: "Regular question",
         impostorQuestionLabel: "Impostor question",
         impostorLabel: "Impostor",
         answerWord: "answer",
+        votesLabel: "Votes",
+        noVotesLabel: "no votes",
         newRoundBtn: "New round",
-        backSetupBtn: "Back to setup",
+        backSetupBtn: "Back to lobby",
         historyTitle: "History",
-        historyText: "Finished games are saved here: topic, regular question, impostor question, and who the impostor was.",
-        emptyHistory: "History is empty for now. Finish the first round and it will appear here.",
+        historyText: "Finished games on this device are saved here.",
+        emptyHistory: "History is empty for now.",
         gameWord: "Game",
         voteWord: "Vote",
         correctWord: "correct",
@@ -672,8 +655,12 @@
         unknownTopic: "Unknown topic",
         clearHistoryBtn: "Clear history",
         clearHistoryConfirm: "Clear all game history?",
-        minPlayersAlert: "You need at least 3 players.",
-        emptyAnswerAlert: "Enter an answer before continuing."
+        emptyAnswerAlert: "Enter an answer before continuing.",
+        nameModalTitle: "What is your name?",
+        nameModalText: "Enter the name other players will see.",
+        nameInputLabel: "Name",
+        nameInputPlaceholder: "Enter name",
+        saveNameBtn: "Save"
       }
     };
 
@@ -681,161 +668,86 @@
       {
         topic: "dating",
         topicLabel: { uk: "Dating & relationships", en: "Dating & relationships" },
-        normal: {
-          uk: "Який red flag ти б точно не пробачив/не пробачила на побаченні?",
-          en: "What red flag would you never forgive on a date?"
-        },
-        impostor: {
-          uk: "Назви red flag, про який люди часто говорять у TikTok.",
-          en: "Name a red flag people often talk about on TikTok."
-        }
+        normal: { uk: "Який red flag ти б точно не пробачив/не пробачила на побаченні?", en: "What red flag would you never forgive on a date?" },
+        impostor: { uk: "Назви red flag, про який люди часто говорять у TikTok.", en: "Name a red flag people often talk about on TikTok." }
       },
       {
         topic: "spicy",
         topicLabel: { uk: "Spicy questions", en: "Spicy questions" },
-        normal: {
-          uk: "Яке повідомлення ти б точно не хотів/хотіла, щоб випадково побачили друзі?",
-          en: "What kind of message would you definitely not want your friends to accidentally see?"
-        },
-        impostor: {
-          uk: "Назви тип повідомлення, який люди часто приховують від інших.",
-          en: "Name a type of message people often hide from others."
-        }
+        normal: { uk: "Яке повідомлення ти б точно не хотів/хотіла, щоб випадково побачили друзі?", en: "What kind of message would you definitely not want your friends to accidentally see?" },
+        impostor: { uk: "Назви тип повідомлення, який люди часто приховують від інших.", en: "Name a type of message people often hide from others." }
       },
       {
         topic: "popculture",
         topicLabel: { uk: "Pop culture", en: "Pop culture" },
-        normal: {
-          uk: "Який серіал ти б стер/стерла з памʼяті, щоб подивитися знову?",
-          en: "Which series would you erase from your memory just to watch it again?"
-        },
-        impostor: {
-          uk: "Назви серіал, який зараз вважається дуже хайповим.",
-          en: "Name a series that is considered very hyped right now."
-        }
+        normal: { uk: "Який серіал ти б стер/стерла з памʼяті, щоб подивитися знову?", en: "Which series would you erase from your memory just to watch it again?" },
+        impostor: { uk: "Назви серіал, який зараз вважається дуже хайповим.", en: "Name a series that is considered very hyped right now." }
       },
       {
         topic: "socialmedia",
         topicLabel: { uk: "Social media", en: "Social media" },
-        normal: {
-          uk: "Який тренд у соцмережах тобі реально подобається?",
-          en: "What social media trend do you actually like?"
-        },
-        impostor: {
-          uk: "Назви тренд, який часто зʼявляється в TikTok або Instagram.",
-          en: "Name a trend that often appears on TikTok or Instagram."
-        }
+        normal: { uk: "Який тренд у соцмережах тобі реально подобається?", en: "What social media trend do you actually like?" },
+        impostor: { uk: "Назви тренд, який часто зʼявляється в TikTok або Instagram.", en: "Name a trend that often appears on TikTok or Instagram." }
       },
       {
         topic: "money",
         topicLabel: { uk: "Money & prices", en: "Money & prices" },
-        normal: {
-          uk: "Скільки грошей ти готовий/готова витратити на {event}?",
-          en: "How much money would you be willing to spend on {event}?"
-        },
-        impostor: {
-          uk: "Напиши реалістичний проміжок суми від {min} до {max} доларів.",
-          en: "Write a realistic price range between {min} and {max} dollars."
-        },
+        normal: { uk: "Скільки грошей ти готовий/готова витратити на {event}?", en: "How much money would you be willing to spend on {event}?" },
+        impostor: { uk: "Напиши реалістичний проміжок суми від {min} до {max} доларів.", en: "Write a realistic price range between {min} and {max} dollars." },
         values: {
-          event: {
-            uk: ["весілля", "подорож мрії", "новий ноутбук", "ремонт кімнати", "подарунок близькій людині", "аутфіт на важливу подію"],
-            en: ["a wedding", "a dream trip", "a new laptop", "a room makeover", "a gift for someone close", "an outfit for an important event"]
-          },
-          min: {
-            uk: ["500", "1 000", "2 000", "5 000"],
-            en: ["500", "1,000", "2,000", "5,000"]
-          },
-          max: {
-            uk: ["20 000", "50 000", "100 000", "150 000"],
-            en: ["20,000", "50,000", "100,000", "150,000"]
-          }
+          event: { uk: ["весілля", "подорож мрії", "новий ноутбук", "ремонт кімнати", "подарунок близькій людині", "аутфіт на важливу подію"], en: ["a wedding", "a dream trip", "a new laptop", "a room makeover", "a gift for someone close", "an outfit for an important event"] },
+          min: { uk: ["500", "1 000", "2 000", "5 000"], en: ["500", "1,000", "2,000", "5,000"] },
+          max: { uk: ["20 000", "50 000", "100 000", "150 000"], en: ["20,000", "50,000", "100,000", "150,000"] }
         }
       },
       {
         topic: "greenflags",
         topicLabel: { uk: "Green flags", en: "Green flags" },
-        normal: {
-          uk: "Яка риса в людині моментально робить її attractive для тебе?",
-          en: "What trait instantly makes someone attractive to you?"
-        },
-        impostor: {
-          uk: "Назви рису, яку люди часто називають green flag.",
-          en: "Name a trait people often call a green flag."
-        }
+        normal: { uk: "Яка риса в людині моментально робить її attractive для тебе?", en: "What trait instantly makes someone attractive to you?" },
+        impostor: { uk: "Назви рису, яку люди часто називають green flag.", en: "Name a trait people often call a green flag." }
       },
       {
         topic: "party",
         topicLabel: { uk: "Party stories", en: "Party stories" },
-        normal: {
-          uk: "Яка найхаотичніша річ може статися на вечірці?",
-          en: "What is the most chaotic thing that could happen at a party?"
-        },
-        impostor: {
-          uk: "Назви типову проблему, яка часто стається на вечірках.",
-          en: "Name a typical problem that often happens at parties."
-        }
+        normal: { uk: "Яка найхаотичніша річ може статися на вечірці?", en: "What is the most chaotic thing that could happen at a party?" },
+        impostor: { uk: "Назви типову проблему, яка часто стається на вечірках.", en: "Name a typical problem that often happens at parties." }
       },
       {
         topic: "brand",
         topicLabel: { uk: "Brands", en: "Brands" },
-        normal: {
-          uk: "Який бренд ти б носив/носила, якби весь гардероб мав бути від одного бренду?",
-          en: "What brand would you wear if your whole wardrobe had to be from one brand?"
-        },
-        impostor: {
-          uk: "Назви бренд, який часто купують через статус.",
-          en: "Name a brand people often buy for status."
-        }
+        normal: { uk: "Який бренд ти б носив/носила, якби весь гардероб мав бути від одного бренду?", en: "What brand would you wear if your whole wardrobe had to be from one brand?" },
+        impostor: { uk: "Назви бренд, який часто купують через статус.", en: "Name a brand people often buy for status." }
       },
       {
         topic: "company",
         topicLabel: { uk: "Companies", en: "Companies" },
-        normal: {
-          uk: "Керівником якої компанії ти хотів/хотіла б бути?",
-          en: "Which company would you want to be the CEO of?"
-        },
-        impostor: {
-          uk: "Яку компанію ти вважаєш найбільш переоціненою?",
-          en: "Which company do you think is the most overrated?"
-        }
+        normal: { uk: "Керівником якої компанії ти хотів/хотіла б бути?", en: "Which company would you want to be the CEO of?" },
+        impostor: { uk: "Яку компанію ти вважаєш найбільш переоціненою?", en: "Which company do you think is the most overrated?" }
       },
       {
         topic: "travel",
         topicLabel: { uk: "Travel taste", en: "Travel taste" },
-        normal: {
-          uk: "Який напрямок ти б вибрав/вибрала для спонтанної поїздки на вихідні?",
-          en: "What destination would you choose for a spontaneous weekend trip?"
-        },
-        impostor: {
-          uk: "Назви популярний напрямок для короткої поїздки.",
-          en: "Name a popular destination for a short trip."
-        }
+        normal: { uk: "Який напрямок ти б вибрав/вибрала для спонтанної поїздки на вихідні?", en: "What destination would you choose for a spontaneous weekend trip?" },
+        impostor: { uk: "Назви популярний напрямок для короткої поїздки.", en: "Name a popular destination for a short trip." }
       },
       {
         topic: "hottakes",
         topicLabel: { uk: "Hot takes", en: "Hot takes" },
-        normal: {
-          uk: "Яка твоя думка, за яку тебе могли б засудити в компанії друзів?",
-          en: "What opinion of yours could get you judged by your friends?"
-        },
-        impostor: {
-          uk: "Назви тему, через яку люди часто сперечаються в компанії.",
-          en: "Name a topic people often argue about in a friend group."
-        }
+        normal: { uk: "Яка твоя думка, за яку тебе могли б засудити в компанії друзів?", en: "What opinion of yours could get you judged by your friends?" },
+        impostor: { uk: "Назви тему, через яку люди часто сперечаються в компанії.", en: "Name a topic people often argue about in a friend group." }
       }
     ];
 
     let currentLanguage = localStorage.getItem("impostorGameLanguage") || "uk";
-    let game = null;
+    let myPlayerName = localStorage.getItem("impostorPlayerName") || "";
     let currentLobbyCode = localStorage.getItem("impostorLobbyCode") || null;
     let currentPlayerId = localStorage.getItem("impostorPlayerId") || null;
     let currentLobbyData = null;
     let history = loadHistory();
-    let lobbyPlayers = loadLobbyPlayers();
+    let unsubscribeLobby = null;
 
     const $ = (id) => document.getElementById(id);
-    const screens = ["setupScreen", "passScreen", "questionScreen", "answersScreen", "voteScreen", "resultScreen"];
+    const screens = ["setupScreen", "questionScreen", "answersScreen", "voteScreen", "resultScreen"];
 
     function t(key) {
       return translations[currentLanguage][key] || translations.en[key] || key;
@@ -920,6 +832,22 @@
       return pair;
     }
 
+    function createLobbyCode() {
+      return Math.random().toString(36).substring(2, 6).toUpperCase();
+    }
+
+    function getPlayersArray(lobby = currentLobbyData) {
+      return Object.entries(lobby?.players || {}).map(([id, player]) => ({ id, ...player }));
+    }
+
+    function isHost(lobby = currentLobbyData) {
+      return Boolean(lobby && currentPlayerId && lobby.hostId === currentPlayerId);
+    }
+
+    function getMyPlayer(lobby = currentLobbyData) {
+      return lobby?.players?.[currentPlayerId] || null;
+    }
+
     function loadHistory() {
       try {
         const saved = localStorage.getItem("impostorGameHistory");
@@ -931,96 +859,6 @@
 
     function saveHistory() {
       localStorage.setItem("impostorGameHistory", JSON.stringify(history));
-    }
-
-    function loadLobbyPlayers() {
-      try {
-        const saved = localStorage.getItem("impostorLobbyPlayers");
-        return saved ? JSON.parse(saved) : [];
-      } catch {
-        return [];
-      }
-    }
-
-    function saveLobbyPlayers() {
-      localStorage.setItem("impostorLobbyPlayers", JSON.stringify(lobbyPlayers));
-    }
-
-    function renderHistory() {
-      const list = $("historyList");
-      list.innerHTML = "";
-
-      if (!history.length) {
-        list.innerHTML = `<div class="history-card"><p>${escapeHTML(t("emptyHistory"))}</p></div>`;
-        return;
-      }
-
-      history.slice().reverse().forEach((round, index) => {
-        const card = document.createElement("div");
-        card.className = "history-card";
-        card.innerHTML = `
-          <strong>${escapeHTML(t("gameWord"))} ${history.length - index}</strong>
-          <div class="meta">${escapeHTML(round.date)} · ${escapeHTML(round.topicLabel || t("unknownTopic"))}</div>
-          <p><strong>${escapeHTML(t("regularQuestionLabel"))}:</strong> ${escapeHTML(round.normalQuestion)}</p>
-          <p><strong>${escapeHTML(t("impostorQuestionLabel"))}:</strong> ${escapeHTML(round.impostorQuestion)}</p>
-          <p><strong>${escapeHTML(t("impostorLabel"))}:</strong> ${escapeHTML(round.impostorName)}</p>
-          <p><strong>${escapeHTML(t("voteWord"))}:</strong> ${escapeHTML(round.votedName)} ${round.guessedCorrectly ? "✅ " + escapeHTML(t("correctWord")) : "❌ " + escapeHTML(t("wrongWord"))}</p>
-        `;
-        list.appendChild(card);
-      });
-    }
-
-    function parsePlayers() {
-      return lobbyPlayers.map(name => name.trim()).filter(Boolean);
-    }
-
-    function renderPlayers() {
-      const list = $("playersList");
-      list.innerHTML = "";
-
-      if (!lobbyPlayers.length) {
-        list.innerHTML = `<div class="answer-card"><p>${escapeHTML(t("emptyPlayers"))}</p></div>`;
-        return;
-      }
-
-      lobbyPlayers.forEach((name, index) => {
-        const card = document.createElement("div");
-        card.className = "answer-card";
-        card.innerHTML = `<strong>${escapeHTML(name)}</strong><p>${escapeHTML(t("playerNumber"))} ${index + 1}</p>`;
-        list.appendChild(card);
-      });
-    }
-
-    function openJoinModal() {
-      $("joinModal").classList.remove("hidden");
-      setTimeout(() => $("joinNameInput").focus(), 50);
-    }
-
-    function closeJoinModal() {
-      $("joinModal").classList.add("hidden");
-      $("joinNameInput").value = "";
-    }
-
-    function addLobbyPlayer() {
-      const name = $("joinNameInput").value.trim();
-      if (!name) return;
-
-      if (!lobbyPlayers.includes(name)) {
-        lobbyPlayers.push(name);
-        saveLobbyPlayers();
-        renderPlayers();
-      }
-
-      closeJoinModal();
-    }
-
-    function shuffle(array) {
-      const copy = [...array];
-      for (let i = copy.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [copy[i], copy[j]] = [copy[j], copy[i]];
-      }
-      return copy;
     }
 
     function escapeHTML(text) {
@@ -1050,251 +888,393 @@
         button.classList.toggle("active", button.dataset.lang === lang);
       });
 
+      renderMyName();
       renderPlayers();
       renderHistory();
-      if (game) {
-        if (!$("answersScreen").classList.contains("hidden")) renderAnswers();
-        if (!$("voteScreen").classList.contains("hidden")) renderVotes();
+      renderLobbyByPhase();
+    }
+
+    function renderMyName() {
+      $("myNameText").textContent = myPlayerName || "—";
+    }
+
+    function showNameModal() {
+      $("nameModal").classList.remove("hidden");
+      $("nameInput").value = myPlayerName;
+      setTimeout(() => $("nameInput").focus(), 50);
+    }
+
+    async function saveName() {
+      const name = $("nameInput").value.trim();
+      if (!name) return;
+
+      myPlayerName = name;
+      localStorage.setItem("impostorPlayerName", name);
+      $("nameModal").classList.add("hidden");
+      renderMyName();
+
+      if (currentLobbyCode && currentPlayerId) {
+        await update(ref(db, `lobbies/${currentLobbyCode}/players/${currentPlayerId}`), { name });
       }
     }
 
     async function createLobby() {
-      const players = parsePlayers();
-
-      if (players.length < 1) {
-        alert(t("minPlayersAlert"));
+      if (!myPlayerName) {
+        alert(t("needNameAlert"));
+        showNameModal();
         return;
       }
 
       const lobbyCode = createLobbyCode();
-      const hostId = crypto.randomUUID();
+      const playerId = crypto.randomUUID();
 
       await set(ref(db, `lobbies/${lobbyCode}`), {
         phase: "lobby",
-        hostId,
+        hostId: playerId,
         createdAt: Date.now(),
-        players: players.reduce((acc, name, index) => {
-          const id = index === 0 ? hostId : crypto.randomUUID();
-          acc[id] = {
-            name,
+        language: currentLanguage,
+        players: {
+          [playerId]: {
+            name: myPlayerName,
+            answer: "",
+            vote: "",
             connected: true
-          };
-          return acc;
-        }, {})
-      });
-
-      currentLobbyCode = lobbyCode;
-      currentPlayerId = hostId;
-
-      localStorage.setItem("impostorLobbyCode", lobbyCode);
-      localStorage.setItem("impostorPlayerId", hostId);
-
-      listenToLobby(lobbyCode);
-    }
-
-    async function joinLobby() {
-      const lobbyCode = $("lobbyCodeInput").value.trim().toUpperCase();
-      const playerName = prompt(currentLanguage === "uk" ? "Введи своє імʼя" : "Enter your name");
-
-      if (!lobbyCode || !playerName) return;
-
-      const snapshot = await get(child(ref(db), `lobbies/${lobbyCode}`));
-
-      if (!snapshot.exists()) {
-        alert(currentLanguage === "uk" ? "Лоббі не знайдено" : "Lobby not found");
-        return;
-      }
-
-      const playerId = crypto.randomUUID();
-
-      await update(ref(db, `lobbies/${lobbyCode}/players`), {
-        [playerId]: {
-          name: playerName,
-          connected: true
+          }
         }
       });
 
       currentLobbyCode = lobbyCode;
       currentPlayerId = playerId;
-
       localStorage.setItem("impostorLobbyCode", lobbyCode);
       localStorage.setItem("impostorPlayerId", playerId);
+      listenToLobby(lobbyCode);
+    }
 
+    async function joinLobby() {
+      if (!myPlayerName) {
+        alert(t("needNameAlert"));
+        showNameModal();
+        return;
+      }
+
+      const lobbyCode = $("lobbyCodeInput").value.trim().toUpperCase();
+      if (!lobbyCode) return;
+
+      const snapshot = await get(child(ref(db), `lobbies/${lobbyCode}`));
+      if (!snapshot.exists()) {
+        alert(t("lobbyNotFound"));
+        return;
+      }
+
+      const playerId = crypto.randomUUID();
+      await set(ref(db, `lobbies/${lobbyCode}/players/${playerId}`), {
+        name: myPlayerName,
+        answer: "",
+        vote: "",
+        connected: true
+      });
+
+      currentLobbyCode = lobbyCode;
+      currentPlayerId = playerId;
+      localStorage.setItem("impostorLobbyCode", lobbyCode);
+      localStorage.setItem("impostorPlayerId", playerId);
       listenToLobby(lobbyCode);
     }
 
     function listenToLobby(lobbyCode) {
-      onValue(ref(db, `lobbies/${lobbyCode}`), (snapshot) => {
-        const lobby = snapshot.val();
+      if (unsubscribeLobby) unsubscribeLobby();
 
+      unsubscribeLobby = onValue(ref(db, `lobbies/${lobbyCode}`), async (snapshot) => {
+        const lobby = snapshot.val();
         if (!lobby) return;
 
         currentLobbyData = lobby;
-
-        $("currentLobbyCard").classList.remove("hidden");
         $("currentLobbyCode").textContent = lobbyCode;
-
-        const players = Object.values(lobby.players || {}).map(player => player.name);
-        lobbyPlayers = players;
-        saveLobbyPlayers();
         renderPlayers();
-
-        if (lobby.hostId === currentPlayerId) {
-          $("startBtn").classList.remove("hidden");
-        }
+        renderLobbyByPhase();
+        await maybeAutoAdvance(lobbyCode, lobby);
       });
     }
 
-    function startGame() {
-      const players = parsePlayers();
+    function renderPlayers() {
+      const list = $("playersList");
+      const players = getPlayersArray();
+      list.innerHTML = `<div class="player-card"><strong>${escapeHTML(t("playersInLobby"))}</strong><p>${escapeHTML(players.length ? `${players.length}` : t("noLobbyPlayers"))}</p></div>`;
+
+      if (!players.length) return;
+
+      players.forEach(player => {
+        const card = document.createElement("div");
+        card.className = "player-card";
+        const badges = [];
+        if (player.id === currentPlayerId) badges.push(t("youLabel"));
+        if (currentLobbyData?.hostId === player.id) badges.push(t("hostLabel"));
+        const answerStatus = currentLobbyData?.phase === "questions" ? (player.answer ? "✅" : "…") : "";
+        const voteStatus = currentLobbyData?.phase === "voting" ? (player.vote ? "🗳️" : "…") : "";
+        card.innerHTML = `<strong>${escapeHTML(player.name)} ${escapeHTML(answerStatus || voteStatus)}</strong><p>${escapeHTML(badges.join(" · "))}</p>`;
+        list.appendChild(card);
+      });
+
+      $("startBtn").classList.toggle("hidden", !isHost() || currentLobbyData?.phase !== "lobby");
+    }
+
+    function renderLobbyByPhase() {
+      if (!currentLobbyData) {
+        showScreen("setupScreen");
+        return;
+      }
+
+      if (currentLobbyData.phase === "questions") renderQuestionPhase();
+      else if (currentLobbyData.phase === "answers") renderAnswersPhase();
+      else if (currentLobbyData.phase === "voting") renderVotingPhase();
+      else if (currentLobbyData.phase === "results") renderResultsPhase();
+      else showScreen("setupScreen");
+    }
+
+    async function startOnlineRound() {
+      if (!currentLobbyCode || !currentLobbyData) {
+        alert(t("needLobbyAlert"));
+        return;
+      }
+
+      const players = getPlayersArray();
       if (players.length < 3) {
         alert(t("minPlayersAlert"));
         return;
       }
 
       const pair = generateQuestionPair();
-      const shuffledPlayers = shuffle(players);
-      const impostorIndex = Math.floor(Math.random() * shuffledPlayers.length);
-
-      game = {
+      const impostor = randomItem(players);
+      const updates = {
+        phase: "questions",
         language: currentLanguage,
-        players: shuffledPlayers.map((name, index) => ({
-          name,
-          isImpostor: index === impostorIndex,
-          question: index === impostorIndex ? pair.impostor : pair.normal,
-          answer: ""
-        })),
-        currentIndex: 0,
-        pair,
-        savedToHistory: false
+        topic: pair.topic,
+        topicLabel: pair.topicLabel,
+        regularQuestion: pair.normal,
+        impostorQuestion: pair.impostor,
+        impostorId: impostor.id,
+        results: null,
+        roundStartedAt: Date.now()
       };
 
-      renderPassScreen();
-      showScreen("passScreen");
+      players.forEach(player => {
+        updates[`players/${player.id}/answer`] = "";
+        updates[`players/${player.id}/vote`] = "";
+      });
+
+      await update(ref(db, `lobbies/${currentLobbyCode}`), updates);
     }
 
-    function renderPassScreen() {
-      const player = game.players[game.currentIndex];
-      $("currentPlayerName").textContent = player.name;
+    function getMyQuestion() {
+      if (!currentLobbyData || !currentPlayerId) return "";
+      return currentPlayerId === currentLobbyData.impostorId
+        ? currentLobbyData.impostorQuestion
+        : currentLobbyData.regularQuestion;
     }
 
-    function updateRerollButtonVisibility() {
-      const button = $("rerollQuestionsBtn");
-      button.classList.toggle("hidden", !game || game.currentIndex !== 0);
-    }
-
-    function rerollQuestions() {
-      if (!game || game.currentIndex !== 0) return;
-
-      const previousKey = questionKey(game.pair);
-      let pair = generateQuestionPair();
-      let attempts = 0;
-
-      while (questionKey(pair) === previousKey && attempts < 10) {
-        pair = generateQuestionPair();
-        attempts++;
+    function renderQuestionPhase() {
+      const myPlayer = getMyPlayer();
+      if (!myPlayer) {
+        showScreen("setupScreen");
+        return;
       }
 
-      game.pair = pair;
-      game.players = game.players.map(player => ({
-        ...player,
-        question: player.isImpostor ? pair.impostor : pair.normal
-      }));
-
-      $("questionText").textContent = game.players[0].question;
-    }
-
-    function showQuestion() {
-      const player = game.players[game.currentIndex];
-      $("questionPlayerName").textContent = player.name;
-      $("questionText").textContent = player.question;
-      $("answerInput").value = "";
-      updateRerollButtonVisibility();
+      $("questionPlayerName").textContent = myPlayer.name;
+      $("questionText").textContent = getMyQuestion();
+      $("answerInput").value = myPlayer.answer || "";
+      $("answerInput").disabled = Boolean(myPlayer.answer);
+      $("saveAnswerBtn").disabled = Boolean(myPlayer.answer);
+      $("answerStatusText").textContent = myPlayer.answer ? t("answerSaved") : t("waitingAnswers");
+      $("rerollQuestionsBtn").classList.toggle("hidden", !isHost());
       showScreen("questionScreen");
-      setTimeout(() => $("answerInput").focus(), 150);
     }
 
-    function saveAnswer() {
+    async function submitAnswer() {
       const answer = $("answerInput").value.trim();
       if (!answer) {
         alert(t("emptyAnswerAlert"));
         return;
       }
 
-      game.players[game.currentIndex].answer = answer;
-      game.currentIndex++;
-
-      if (game.currentIndex >= game.players.length) {
-        renderAnswers();
-        showScreen("answersScreen");
-      } else {
-        renderPassScreen();
-        showScreen("passScreen");
-      }
+      await update(ref(db, `lobbies/${currentLobbyCode}/players/${currentPlayerId}`), { answer });
     }
 
-    function renderAnswers() {
+    function renderAnswersPhase() {
       const answersList = $("answersList");
       answersList.innerHTML = "";
-      shuffle(game.players).forEach(player => {
+      getPlayersArray().forEach(player => {
         const card = document.createElement("div");
         card.className = "answer-card";
-        card.innerHTML = `<strong>${escapeHTML(player.name)}</strong><p>${escapeHTML(player.answer)}</p>`;
+        card.innerHTML = `<strong>${escapeHTML(player.name)}</strong><p>${escapeHTML(player.answer || "—")}</p>`;
         answersList.appendChild(card);
       });
+      $("goVoteBtn").classList.toggle("hidden", !isHost());
+      showScreen("answersScreen");
     }
 
-    function renderVotes() {
+    async function startVoting() {
+      await update(ref(db, `lobbies/${currentLobbyCode}`), { phase: "voting" });
+    }
+
+    function renderVotingPhase() {
       const grid = $("voteGrid");
+      const myPlayer = getMyPlayer();
       grid.innerHTML = "";
-      game.players.forEach(player => {
+
+      getPlayersArray().forEach(player => {
         const btn = document.createElement("button");
         btn.className = "vote-btn";
         btn.textContent = player.name;
-        btn.addEventListener("click", () => showResult(player.name));
+        btn.disabled = Boolean(myPlayer?.vote) || player.id === currentPlayerId;
+        btn.addEventListener("click", () => submitVote(player.id));
         grid.appendChild(btn);
+      });
+
+      $("voteStatusText").textContent = myPlayer?.vote ? t("voteSaved") : "";
+      showScreen("voteScreen");
+    }
+
+    async function submitVote(votedPlayerId) {
+      const myPlayer = getMyPlayer();
+      if (myPlayer?.vote) {
+        alert(t("alreadyVoted"));
+        return;
+      }
+
+      await update(ref(db, `lobbies/${currentLobbyCode}/players/${currentPlayerId}`), { vote: votedPlayerId });
+    }
+
+    async function maybeAutoAdvance(lobbyCode, lobby) {
+      if (!isHost(lobby)) return;
+      const players = getPlayersArray(lobby);
+      if (players.length < 3) return;
+
+      if (lobby.phase === "questions" && players.every(player => player.answer)) {
+        await update(ref(db, `lobbies/${lobbyCode}`), { phase: "answers" });
+      }
+
+      if (lobby.phase === "voting" && players.every(player => player.vote)) {
+        const results = calculateResults(lobby);
+        await update(ref(db, `lobbies/${lobbyCode}`), { phase: "results", results });
+        saveFinishedRound(lobby, results);
+      }
+    }
+
+    function calculateResults(lobby) {
+      const players = getPlayersArray(lobby);
+      const counts = {};
+      players.forEach(player => {
+        if (player.vote) counts[player.vote] = (counts[player.vote] || 0) + 1;
+      });
+
+      let votedOutId = null;
+      let maxVotes = -1;
+      Object.entries(counts).forEach(([id, count]) => {
+        if (count > maxVotes) {
+          votedOutId = id;
+          maxVotes = count;
+        }
+      });
+
+      return {
+        voteCounts: counts,
+        votedOutId,
+        impostorCaught: votedOutId === lobby.impostorId,
+        calculatedAt: Date.now()
+      };
+    }
+
+    function renderResultsPhase() {
+      const lobby = currentLobbyData;
+      const results = lobby.results || calculateResults(lobby);
+      const players = getPlayersArray(lobby);
+      const impostor = players.find(player => player.id === lobby.impostorId);
+      const votedOut = players.find(player => player.id === results.votedOutId);
+
+      $("resultEmoji").textContent = results.impostorCaught ? "🎯" : "😎";
+      $("resultTitle").textContent = results.impostorCaught ? t("foundTitle") : t("escapedTitle");
+      $("resultText").textContent = results.impostorCaught
+        ? t("foundText")(votedOut?.name || "—")
+        : t("escapedText")(votedOut?.name || t("noVotesLabel"), impostor?.name || "—");
+
+      $("revealQuestions").innerHTML = `
+        <div class="answer-card"><strong>${escapeHTML(t("topicLabel"))}</strong><p>${escapeHTML(lobby.topicLabel || "—")}</p></div>
+        <div class="answer-card"><strong>${escapeHTML(t("regularQuestionLabel"))}</strong><p>${escapeHTML(lobby.regularQuestion || "—")}</p></div>
+        <div class="answer-card"><strong>${escapeHTML(t("impostorQuestionLabel"))}</strong><p>${escapeHTML(lobby.impostorQuestion || "—")}</p></div>
+        <div class="answer-card"><strong>${escapeHTML(t("impostorLabel"))}</strong><p>${escapeHTML(impostor?.name || "—")} — ${escapeHTML(t("answerWord"))}: ${escapeHTML(impostor?.answer || "—")}</p></div>
+      `;
+
+      const voteList = $("voteResultsList");
+      voteList.innerHTML = `<div class="answer-card"><strong>${escapeHTML(t("votesLabel"))}</strong><p></p></div>`;
+      players.forEach(player => {
+        const votes = results.voteCounts?.[player.id] || 0;
+        const card = document.createElement("div");
+        card.className = "answer-card";
+        card.innerHTML = `<strong>${escapeHTML(player.name)}</strong><p>${votes}</p>`;
+        voteList.appendChild(card);
+      });
+
+      $("playAgainBtn").classList.toggle("hidden", !isHost());
+      showScreen("resultScreen");
+    }
+
+    function saveFinishedRound(lobby, results) {
+      if (!lobby || !results) return;
+      const players = getPlayersArray(lobby);
+      const impostor = players.find(player => player.id === lobby.impostorId);
+      const votedOut = players.find(player => player.id === results.votedOutId);
+      const alreadySaved = history.some(item => item.roundStartedAt === lobby.roundStartedAt);
+      if (alreadySaved) return;
+
+      history.push({
+        date: new Date().toLocaleString([], { year: "numeric", month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
+        roundStartedAt: lobby.roundStartedAt,
+        language: lobby.language,
+        topic: lobby.topic,
+        topicLabel: lobby.topicLabel,
+        normalQuestion: lobby.regularQuestion,
+        impostorQuestion: lobby.impostorQuestion,
+        impostorName: impostor?.name || "—",
+        votedName: votedOut?.name || "—",
+        guessedCorrectly: results.impostorCaught
+      });
+      saveHistory();
+      renderHistory();
+    }
+
+    async function rerollQuestions() {
+      if (!currentLobbyCode || !currentLobbyData || !isHost()) return;
+      const pair = generateQuestionPair();
+      await update(ref(db, `lobbies/${currentLobbyCode}`), {
+        topic: pair.topic,
+        topicLabel: pair.topicLabel,
+        regularQuestion: pair.normal,
+        impostorQuestion: pair.impostor
       });
     }
 
-    function showResult(votedName) {
-      const impostor = game.players.find(player => player.isImpostor);
-      const guessedCorrectly = votedName === impostor.name;
+    function renderHistory() {
+      const list = $("historyList");
+      list.innerHTML = "";
 
-      if (!game.savedToHistory) {
-        history.push({
-          date: new Date().toLocaleString([], {
-            year: "numeric",
-            month: "short",
-            day: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
-          }),
-          language: game.language,
-          topic: game.pair.topic,
-          topicLabel: game.pair.topicLabel,
-          normalQuestion: game.pair.normal,
-          impostorQuestion: game.pair.impostor,
-          impostorName: impostor.name,
-          votedName,
-          guessedCorrectly
-        });
-        saveHistory();
-        renderHistory();
-        game.savedToHistory = true;
+      if (!history.length) {
+        list.innerHTML = `<div class="history-card"><p>${escapeHTML(t("emptyHistory"))}</p></div>`;
+        return;
       }
 
-      $("resultEmoji").textContent = guessedCorrectly ? "🎯" : "😎";
-      $("resultTitle").textContent = guessedCorrectly ? t("foundTitle") : t("escapedTitle");
-      $("resultText").textContent = guessedCorrectly ? t("foundText")(votedName) : t("escapedText")(votedName, impostor.name);
-
-      $("revealQuestions").innerHTML = `
-        <div class="answer-card"><strong>${escapeHTML(t("topicLabel"))}</strong><p>${escapeHTML(game.pair.topicLabel)}</p></div>
-        <div class="answer-card"><strong>${escapeHTML(t("regularQuestionLabel"))}</strong><p>${escapeHTML(game.pair.normal)}</p></div>
-        <div class="answer-card"><strong>${escapeHTML(t("impostorQuestionLabel"))}</strong><p>${escapeHTML(game.pair.impostor)}</p></div>
-        <div class="answer-card"><strong>${escapeHTML(t("impostorLabel"))}</strong><p>${escapeHTML(impostor.name)} — ${escapeHTML(t("answerWord"))}: ${escapeHTML(impostor.answer)}</p></div>
-      `;
-
-      showScreen("resultScreen");
+      history.slice().reverse().forEach((round, index) => {
+        const card = document.createElement("div");
+        card.className = "history-card";
+        card.innerHTML = `
+          <strong>${escapeHTML(t("gameWord"))} ${history.length - index}</strong>
+          <div class="meta">${escapeHTML(round.date)} · ${escapeHTML(round.topicLabel || t("unknownTopic"))}</div>
+          <p><strong>${escapeHTML(t("regularQuestionLabel"))}:</strong> ${escapeHTML(round.normalQuestion)}</p>
+          <p><strong>${escapeHTML(t("impostorQuestionLabel"))}:</strong> ${escapeHTML(round.impostorQuestion)}</p>
+          <p><strong>${escapeHTML(t("impostorLabel"))}:</strong> ${escapeHTML(round.impostorName)}</p>
+          <p><strong>${escapeHTML(t("voteWord"))}:</strong> ${escapeHTML(round.votedName)} ${round.guessedCorrectly ? "✅ " + escapeHTML(t("correctWord")) : "❌ " + escapeHTML(t("wrongWord"))}</p>
+        `;
+        list.appendChild(card);
+      });
     }
 
     function clearHistory() {
@@ -1308,7 +1288,8 @@
     function runTests() {
       console.group("Find the Impostor tests");
       console.assert(typeof generateQuestionPair === "function", "generateQuestionPair should exist.");
-      console.assert(Array.isArray(lobbyPlayers), "Lobby players should be an array.");
+      console.assert(typeof createLobby === "function", "createLobby should exist.");
+      console.assert(typeof startOnlineRound === "function", "startOnlineRound should exist.");
       ["uk", "en"].forEach(lang => {
         const previous = currentLanguage;
         currentLanguage = lang;
@@ -1317,41 +1298,35 @@
         console.assert(Boolean(pair.impostor), `${lang}: impostor question exists.`);
         console.assert(Boolean(pair.topicLabel), `${lang}: topic label exists.`);
         console.assert(!pair.normal.includes("{") && !pair.impostor.includes("{"), `${lang}: placeholders are replaced.`);
-        console.assert(typeof translations[lang].rerollQuestionsBtn === "string", `${lang}: reroll button translation exists.`);
         currentLanguage = previous;
       });
-      const shuffled = shuffle(["A", "B", "C"]);
-      console.assert(shuffled.length === 3 && shuffled.includes("A") && shuffled.includes("B") && shuffled.includes("C"), "Shuffle should keep all players.");
       console.groupEnd();
     }
 
     $("createLobbyBtn").addEventListener("click", createLobby);
     $("joinLobbyBtn").addEventListener("click", joinLobby);
-    $("startBtn").addEventListener("click", startGame);
-    $("openJoinModalBtn").addEventListener("click", openJoinModal);
-    $("closeJoinModalBtn").addEventListener("click", closeJoinModal);
-    $("joinPlayerBtn").addEventListener("click", addLobbyPlayer);
-    $("joinNameInput").addEventListener("keydown", (event) => { if (event.key === "Enter") addLobbyPlayer(); });
-    $("clearPlayersBtn").addEventListener("click", () => {
-      lobbyPlayers = [];
-      saveLobbyPlayers();
-      renderPlayers();
-    });
-    $("showQuestionBtn").addEventListener("click", showQuestion);
-    $("saveAnswerBtn").addEventListener("click", saveAnswer);
+    $("startBtn").addEventListener("click", startOnlineRound);
+    $("changeNameBtn").addEventListener("click", showNameModal);
+    $("saveNameBtn").addEventListener("click", saveName);
+    $("nameInput").addEventListener("keydown", (event) => { if (event.key === "Enter") saveName(); });
+    $("saveAnswerBtn").addEventListener("click", submitAnswer);
     $("rerollQuestionsBtn").addEventListener("click", rerollQuestions);
-    $("goVoteBtn").addEventListener("click", () => { renderVotes(); showScreen("voteScreen"); });
-    $("playAgainBtn").addEventListener("click", startGame);
+    $("goVoteBtn").addEventListener("click", startVoting);
+    $("playAgainBtn").addEventListener("click", startOnlineRound);
     $("backSetupBtn").addEventListener("click", () => showScreen("setupScreen"));
     $("clearHistoryBtn").addEventListener("click", clearHistory);
-    $("answerInput").addEventListener("keydown", (event) => { if (event.key === "Enter") saveAnswer(); });
 
     document.querySelectorAll(".lang-btn").forEach(button => {
       button.addEventListener("click", () => applyLanguage(button.dataset.lang));
     });
 
     applyLanguage(currentLanguage);
-    renderPlayers();
+    renderMyName();
+    renderHistory();
+
+    if (!myPlayerName) showNameModal();
+    if (currentLobbyCode) listenToLobby(currentLobbyCode);
+
     runTests();
   </script>
 </body>
